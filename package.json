@@ -1,0 +1,51 @@
+{
+  "name": "@book000/create-ts",
+  "version": "0.1.0",
+  "description": "Create book000-style TypeScript projects",
+  "license": "MIT",
+  "author": "book000",
+  "type": "module",
+  "packageManager": "pnpm@11.6.0",
+  "bin": {
+    "create-ts": "dist/index.mjs"
+  },
+  "main": "dist/index.mjs",
+  "files": [
+    "dist",
+    "templates"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "lint": "run-z lint:prettier,lint:eslint,lint:tsc",
+    "lint:prettier": "prettier --check src",
+    "lint:eslint": "eslint . -c eslint.config.mjs",
+    "lint:tsc": "tsc",
+    "fix": "run-z fix:prettier fix:eslint",
+    "fix:eslint": "eslint . -c eslint.config.mjs --fix",
+    "fix:prettier": "prettier --write src",
+    "test": "vitest run"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@clack/prompts": "^1.5.1",
+    "commander": "^15.0.0",
+    "execa": "^9.6.1"
+  },
+  "devDependencies": {
+    "@book000/eslint-config": "^1.15.3",
+    "@types/node": "^25.9.3",
+    "eslint": "^10.5.0",
+    "prettier": "^3.8.4",
+    "run-z": "^2.1.0",
+    "tsdown": "^0.22.2",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9"
+  }
+}

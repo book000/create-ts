@@ -1,0 +1,8 @@
+{
+  "configSchema": false,
+  "devDependencies": [],
+  "scripts": {},
+  "depcheckIgnore": [],
+  "src": ["src/main.ts"],
+  "testSrc": ["test/smoke.test.ts", "tsconfig.test.json"]
+}

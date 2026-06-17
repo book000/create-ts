@@ -64,49 +64,60 @@ book000/create-ts/
 
 ## テンプレートソース
 
-テンプレートファイルはすべて `book000/templates` リポジトリの `nodejs/` ディレクトリから取得する。
+テンプレートファイルはすべてこのリポジトリの `templates/` ディレクトリに同梱されており、実行時の外部取得は行わない。
+`src/template.ts` の `readTemplate()` が `templates/` 配下のファイルを `readFileSync` で読み込む。
 
 ```
-https://raw.githubusercontent.com/book000/templates/master/nodejs/
-  common/
-    tsconfig.json
-    .prettierrc.yml
-    eslint.config.mjs
-    renovate.json
-    .depcheckrc.json
-    .fixpackrc
-    pnpm-workspace.yaml
-    .devcontainer/devcontainer.json
-    Dockerfile                    # --docker 時のみ使用
-    entrypoint.sh                 # --docker 時のみ使用
-  base/
-    template.json
-    package.json
-    pnpm-lock.yaml
-    src/main.ts
-  config-batch/
-    template.json
-    package.json
-    pnpm-lock.yaml
-    src/main.ts
-    src/config.ts
-  fastify/
-    template.json
-    package.json
-    pnpm-lock.yaml
-    src/main.ts
-  discord-bot/
-    template.json
-    package.json
-    pnpm-lock.yaml
-    src/main.ts
-    src/config.ts
-    src/discord.ts
-
-https://raw.githubusercontent.com/book000/templates/master/workflows/
-  nodejs-ci-pnpm.yml
-  docker.yml                      # --docker 時のみ使用
-  add-reviewer.yml                # --add-reviewer 時のみ使用
+templates/
+  nodejs/
+    common/
+      tsconfig.json
+      .prettierrc.yml
+      eslint.config.mjs
+      renovate.json
+      .depcheckrc.json
+      .fixpackrc
+      pnpm-workspace.yaml
+      .devcontainer/devcontainer.json
+      Dockerfile                    # --docker 時のみ使用
+      entrypoint.sh                 # --docker 時のみ使用
+    base/
+      template.json
+      package.json
+      pnpm-lock.yaml
+      src/main.ts
+      test/smoke.test.ts            # --test 時のみ使用
+      tsconfig.test.json            # --test 時のみ使用
+    config-batch/
+      template.json
+      package.json
+      pnpm-lock.yaml
+      src/main.ts
+      src/config.ts
+      test/config.test.ts           # --test 時のみ使用
+      tsconfig.test.json            # --test 時のみ使用
+    fastify/
+      template.json
+      package.json
+      pnpm-lock.yaml
+      src/main.ts
+      test/app.test.ts              # --test 時のみ使用
+      tsconfig.test.json            # --test 時のみ使用
+    discord-bot/
+      template.json
+      package.json
+      pnpm-lock.yaml
+      src/main.ts
+      src/config.ts
+      src/discord.ts
+      test/discord.test.ts          # --test 時のみ使用
+      tsconfig.test.json            # --test 時のみ使用
+  workflows/
+    nodejs-ci-pnpm.yml
+    docker.yml                      # --docker 時のみ使用
+    add-reviewer.yml                # --add-reviewer 時のみ使用
+  gitignore/
+    Node.gitignore
 ```
 
 ### template.json のスキーマ
@@ -120,13 +131,14 @@ interface TemplateConfig {
   devDependencies?: string[]     // 参照用メタデータ（処理には使用しない。variant の package.json に既に含まれる）
   scripts?: Record<string, string> // 参照用メタデータ（処理には使用しない。variant の package.json に既に含まれる）
   depcheckIgnore?: string[]      // .depcheckrc.json の ignores に追加するパッケージ
-  src: string[]                  // 取得する src ファイルのパス一覧
+  src: string[]                  // 常にコピーする src ファイルのパス一覧
+  testSrc?: string[]             // --test 有効時のみコピーするテストファイルのパス一覧
 }
 ```
 
 > **注意**: `dependencies` / `devDependencies` / `scripts` フィールドは人間可読なメタデータとして定義されているが、
 > CLI 処理では一切使用しない。これらの内容はすでに各バリアントの `package.json` に組み込まれているため、
-> 改めてマージする処理は不要。CLI が使用するのは `configSchema`・`depcheckIgnore`・`src` の 3 フィールドのみ。
+> 改めてマージする処理は不要。CLI が使用するのは `configSchema`・`depcheckIgnore`・`src`・`testSrc` の 4 フィールド。
 
 各バリアントの実際の値：
 
@@ -321,7 +333,7 @@ pnpm create @book000/ts [出力ディレクトリ] [オプション]
 
 ### ステップ 2: template.json の取得
 
-`https://raw.githubusercontent.com/book000/templates/master/nodejs/<variant>/template.json`
+`https://raw.githubusercontent.com/book000/templates/feat/nodejs-template/nodejs/<variant>/template.json`
 をフェッチして JSON としてパースする。
 
 ### ステップ 3: 共通テンプレートファイルの取得
@@ -345,7 +357,7 @@ Dockerfile
 entrypoint.sh
 ```
 
-取得元 URL: `https://raw.githubusercontent.com/book000/templates/master/nodejs/common/<ファイル名>`
+取得元 URL: `https://raw.githubusercontent.com/book000/templates/feat/nodejs-template/nodejs/common/<ファイル名>`
 
 必要に応じて親ディレクトリを作成する（`.devcontainer/` 等）。
 
@@ -353,7 +365,7 @@ entrypoint.sh
 
 `template.json` の `src` フィールドに列挙されたファイルを `fetch()` で個別取得して出力ディレクトリに配置する。
 
-取得元 URL: `https://raw.githubusercontent.com/book000/templates/master/nodejs/<variant>/<srcFile>`
+取得元 URL: `https://raw.githubusercontent.com/book000/templates/feat/nodejs-template/nodejs/<variant>/<srcFile>`
 
 必要に応じて親ディレクトリを作成する（`src/` 等）。
 
@@ -436,7 +448,7 @@ ESM / CJS 問わず適用する。
 
 #### 9-1. バリアントの package.json を取得
 
-`https://raw.githubusercontent.com/book000/templates/master/nodejs/<variant>/package.json`
+`https://raw.githubusercontent.com/book000/templates/feat/nodejs-template/nodejs/<variant>/package.json`
 を取得し、JSON としてパース。
 
 このファイルは CI テスト済みのテンプレート。`name` や `description` 等はプレースホルダー値。
@@ -498,7 +510,7 @@ BOM なし UTF-8 で保存する。
 
 ### ステップ 10: pnpm-lock.yaml の取得
 
-`https://raw.githubusercontent.com/book000/templates/master/nodejs/<variant>/pnpm-lock.yaml`
+`https://raw.githubusercontent.com/book000/templates/feat/nodejs-template/nodejs/<variant>/pnpm-lock.yaml`
 を取得して出力ディレクトリに保存する。
 
 このファイルは CI テスト済みの固定バージョン lockfile。次の `pnpm install --frozen-lockfile` の前提条件。
@@ -715,11 +727,35 @@ on:
     branches:
       - main
       - master
+  pull_request_target:
+    branches:
+      - main
+      - master
+    types:
+      - opened
+      - synchronize
+      - reopened
   merge_group:
 
 jobs:
+  post-approval-request:
+    # fork PR の場合に承認コメントを投稿する（fork でない場合はスキップ）
+    name: Post approval request
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository && ...
+    permissions:
+      issues: write
+      pull-requests: write
+
+  approval-gate:
+    # fork PR のビルドを Environment 保護で承認制御する
+    name: Approval gate
+    needs: post-approval-request
+    environment: ${{ ... && 'fork-pr-build' || '' }}
+
   node-ci:
     name: Node CI
+    needs: approval-gate
     uses: book000/templates/.github/workflows/reusable-nodejs-ci-pnpm.yml@master
 ```
 
@@ -742,8 +778,8 @@ jobs:
    - `custom_release_rules`: `feat:minor`, `fix:patch`, `docs:patch`, `chore:patch`, `refactor:patch`, `build:patch`, `ci:patch`, `revert:patch`, `style:patch`, `test:patch`（`release:major` は除外 — v0 フェーズ中はメジャーバンプなし）
 8. `pnpm version --no-git-tag-version ${{ steps.tag-version.outputs.new_version }}`（package.json のバージョンを更新）
 9. `pnpm run build`
-10. `dist/index.js` の存在確認
-11. `pnpm pack` で tarball を作成し `dist/index.js` が含まれることを確認
+10. `dist/index.mjs` の存在確認
+11. `pnpm pack` で tarball を作成し `dist/index.mjs` が含まれることを確認
 12. `pnpm run lint`
 13. `pnpm publish --access public --no-git-checks --ignore-scripts`（環境変数 `NPM_CONFIG_PROVENANCE: "true"` を設定して実行）
 14. `ncipollo/release-action@v1.21.0` で GitHub Release を作成
