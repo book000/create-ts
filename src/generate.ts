@@ -1,4 +1,5 @@
 import type { ProjectOptions } from './types.js'
+import { readTemplate } from './template.js'
 
 /**
  * バリアントの package.json にプロジェクト固有の値を適用する。
@@ -118,20 +119,11 @@ export function patchDockerWorkflow(
 
 /**
  * .gitignore を生成する。
- * Node.gitignore をベースに pnpm セクション（と任意で data/ セクション）を追記する。
+ * バンドルされた Node.gitignore（pnpm セクション付き）をベースに、
+ * 任意で data/ セクションを追記する。
  */
-export async function generateGitignore(ignoreData: boolean): Promise<string> {
-  const response = await fetch(
-    'https://raw.githubusercontent.com/github/gitignore/main/Node.gitignore'
-  )
-  if (!response.ok) {
-    throw new Error(
-      `gitignore テンプレートの取得に失敗しました: ${response.status}`
-    )
-  }
-  let result = await response.text()
-
-  result += '\n\n# pnpm\npnpm-debug.log*'
+export function generateGitignore(ignoreData: boolean): string {
+  let result = readTemplate('gitignore/Node.gitignore')
 
   if (ignoreData) {
     result += '\n\n# データディレクトリ\ndata/'

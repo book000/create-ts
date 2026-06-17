@@ -14,12 +14,7 @@ import {
   updateDepcheck,
 } from './generate.js'
 import { collectOptions, confirmOverwrite, displaySummary } from './prompts.js'
-import {
-  TEMPLATE_BASE_URL,
-  WORKFLOW_BASE_URL,
-  fetchTemplateConfig,
-  fetchText,
-} from './template.js'
+import { fetchTemplateConfig, readTemplate } from './template.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const { version } = JSON.parse(
@@ -170,14 +165,12 @@ async function main(): Promise<void> {
   }
 
   try {
-    const NODEJS_BASE = `${TEMPLATE_BASE_URL}/nodejs`
+    // ステップ 2: template.json の読み込み
+    s.start('テンプレート設定を読み込んでいます...')
+    const templateConfig = fetchTemplateConfig(options.variant)
+    s.stop('テンプレート設定を読み込みました')
 
-    // ステップ 2: template.json の取得
-    s.start('template.json を取得しています...')
-    const templateConfig = await fetchTemplateConfig(options.variant)
-    s.stop('template.json を取得しました')
-
-    // ステップ 3: 共通テンプレートファイルの取得
+    // ステップ 3: 共通テンプレートファイルのコピー
     const commonFiles = [
       'tsconfig.json',
       '.prettierrc.yml',
@@ -193,22 +186,22 @@ async function main(): Promise<void> {
       commonFiles.push('Dockerfile', 'entrypoint.sh')
     }
 
-    s.start('共通ファイルを取得しています...')
+    s.start('共通ファイルをコピーしています...')
     for (const file of commonFiles) {
-      const content = await fetchText(`${NODEJS_BASE}/common/${file}`)
+      const content = readTemplate(`nodejs/common/${file}`)
       writeFile(path.join(outDir, file), content)
     }
-    s.stop(`共通ファイルを取得しました (${commonFiles.length} ファイル)`)
+    s.stop(`共通ファイルをコピーしました (${commonFiles.length} ファイル)`)
 
-    // ステップ 4: バリアント src ファイルの取得
-    s.start('src ファイルを取得しています...')
+    // ステップ 4: バリアント src ファイルのコピー
+    s.start('src ファイルをコピーしています...')
     for (const srcFile of templateConfig.src) {
-      const content = await fetchText(
-        `${NODEJS_BASE}/${options.variant}/${srcFile}`
-      )
+      const content = readTemplate(`nodejs/${options.variant}/${srcFile}`)
       writeFile(path.join(outDir, srcFile), content)
     }
-    s.stop(`src ファイルを取得しました (${templateConfig.src.length} ファイル)`)
+    s.stop(
+      `src ファイルをコピーしました (${templateConfig.src.length} ファイル)`
+    )
 
     // ステップ 5: tsconfig.json のパッチ
     const tsconfigPath = path.join(outDir, 'tsconfig.json')
@@ -225,7 +218,7 @@ async function main(): Promise<void> {
 
     // ステップ 6: .gitignore / .node-version の生成
     s.start('.gitignore を生成しています...')
-    const gitignoreContent = await generateGitignore(options.ignoreData)
+    const gitignoreContent = generateGitignore(options.ignoreData)
     writeFileSync(path.join(outDir, '.gitignore'), gitignoreContent, 'utf8')
 
     const { stdout: nodeVersion } = await execa('node', ['--version'])
@@ -257,16 +250,16 @@ async function main(): Promise<void> {
       )
     }
 
-    // ステップ 8: ワークフローファイルの取得
-    s.start('ワークフローファイルを取得しています...')
+    // ステップ 8: ワークフローファイルのコピー
+    s.start('ワークフローファイルをコピーしています...')
     const workflowDir = path.join(outDir, '.github', 'workflows')
     mkdirSync(workflowDir, { recursive: true })
 
-    const ciYml = await fetchText(`${WORKFLOW_BASE_URL}/nodejs-ci-pnpm.yml`)
+    const ciYml = readTemplate('workflows/nodejs-ci-pnpm.yml')
     writeFileSync(path.join(workflowDir, 'nodejs-ci-pnpm.yml'), ciYml, 'utf8')
 
     if (options.docker) {
-      const dockerYml = await fetchText(`${WORKFLOW_BASE_URL}/docker.yml`)
+      const dockerYml = readTemplate('workflows/docker.yml')
       const patchedDockerYml = patchDockerWorkflow(
         dockerYml,
         options.org,
@@ -286,9 +279,7 @@ async function main(): Promise<void> {
     }
 
     if (options.addReviewer) {
-      const addReviewerYml = await fetchText(
-        `${WORKFLOW_BASE_URL}/add-reviewer.yml`
-      )
+      const addReviewerYml = readTemplate('workflows/add-reviewer.yml')
       writeFileSync(
         path.join(workflowDir, 'add-reviewer.yml'),
         addReviewerYml,
@@ -296,14 +287,14 @@ async function main(): Promise<void> {
       )
     }
 
-    s.stop('ワークフローファイルを取得しました')
+    s.stop('ワークフローファイルをコピーしました')
 
     // ステップ 9: package.json の生成
     s.start('package.json を生成しています...')
 
-    // 9-1: バリアントの package.json を取得
-    const variantPkgText = await fetchText(
-      `${NODEJS_BASE}/${options.variant}/package.json`
+    // 9-1: バリアントの package.json を読み込み
+    const variantPkgText = readTemplate(
+      `nodejs/${options.variant}/package.json`
     )
     const variantPkgJson = JSON.parse(variantPkgText) as Record<string, unknown>
 
@@ -342,13 +333,11 @@ async function main(): Promise<void> {
     )
     s.stop('package.json を生成しました')
 
-    // ステップ 10: pnpm-lock.yaml の取得
-    s.start('pnpm-lock.yaml を取得しています...')
-    const pnpmLock = await fetchText(
-      `${NODEJS_BASE}/${options.variant}/pnpm-lock.yaml`
-    )
+    // ステップ 10: pnpm-lock.yaml のコピー
+    s.start('pnpm-lock.yaml をコピーしています...')
+    const pnpmLock = readTemplate(`nodejs/${options.variant}/pnpm-lock.yaml`)
     writeFileSync(path.join(outDir, 'pnpm-lock.yaml'), pnpmLock, 'utf8')
-    s.stop('pnpm-lock.yaml を取得しました')
+    s.stop('pnpm-lock.yaml をコピーしました')
 
     // ステップ 11: pnpm install
     s.start('pnpm install を実行しています...')

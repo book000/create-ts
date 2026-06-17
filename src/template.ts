@@ -1,34 +1,27 @@
+import { readFileSync } from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import type { TemplateConfig } from './types.js'
 
-/** nodejs/ テンプレートのベース URL（feat/nodejs-template ブランチ） */
-export const TEMPLATE_BASE_URL =
-  'https://raw.githubusercontent.com/book000/templates/feat/nodejs-template'
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-/** ワークフローファイルのベース URL（master ブランチ） */
-export const WORKFLOW_BASE_URL =
-  'https://raw.githubusercontent.com/book000/templates/master/workflows'
+/** バンドルされたテンプレートのルートディレクトリ */
+const TEMPLATES_DIR = path.join(__dirname, '../templates')
 
 /**
- * 指定 URL のテキストコンテンツを取得する。
- * 取得失敗時は Error をスローする。
+ * バンドルされたテンプレートファイルを文字列として読み込む。
+ * @param relativePath - テンプレートルートからの相対パス
  */
-export async function fetchText(url: string): Promise<string> {
-  const response = await fetch(url)
-  if (!response.ok) {
-    throw new Error(
-      `Failed to fetch ${url}: ${response.status} ${response.statusText}`
-    )
-  }
-  return response.text()
+export function readTemplate(relativePath: string): string {
+  const filePath = path.join(TEMPLATES_DIR, relativePath)
+  return readFileSync(filePath, 'utf8')
 }
 
 /**
- * バリアントの template.json を取得してパースする。
+ * バリアントの template.json を読み込んでパースする。
+ * @param variant - バリアント名
  */
-export async function fetchTemplateConfig(
-  variant: string
-): Promise<TemplateConfig> {
-  const url = `${TEMPLATE_BASE_URL}/nodejs/${variant}/template.json`
-  const text = await fetchText(url)
-  return JSON.parse(text) as TemplateConfig
+export function fetchTemplateConfig(variant: string): TemplateConfig {
+  const content = readTemplate(`nodejs/${variant}/template.json`)
+  return JSON.parse(content) as TemplateConfig
 }

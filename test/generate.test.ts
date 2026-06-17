@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import {
   generateGitignore,
   patchDockerWorkflow,
@@ -184,31 +184,16 @@ describe('patchDockerWorkflow', () => {
 // ---- generateGitignore ----
 
 describe('generateGitignore', () => {
-  beforeEach(() => {
-    vi.stubGlobal(
-      'fetch',
-      () =>
-        ({
-          ok: true,
-          text: () => '# Logs\nlogs\n*.log\n\n# node_modules\nnode_modules/',
-        }) as unknown as Response
-    )
-  })
-
-  afterEach(() => {
-    vi.unstubAllGlobals()
-  })
-
-  it('基本: 末尾に pnpm セクションが追記される', async () => {
-    const result = await generateGitignore(false)
+  it('基本: pnpm セクションが含まれる', () => {
+    const result = generateGitignore(false)
     expect(result).toContain('node_modules/')
     expect(result).toContain('# pnpm')
     expect(result).toContain('pnpm-debug.log*')
     expect(result).not.toContain('data/')
   })
 
-  it('--ignore-data: さらに data/ セクションが追記される', async () => {
-    const result = await generateGitignore(true)
+  it('--ignore-data: さらに data/ セクションが追記される', () => {
+    const result = generateGitignore(true)
     expect(result).toContain('# pnpm')
     expect(result).toContain('# データディレクトリ')
     expect(result).toContain('data/')

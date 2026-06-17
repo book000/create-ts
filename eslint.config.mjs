@@ -1,1 +1,6 @@
-export { default } from '@book000/eslint-config'
+import baseConfig from '@book000/eslint-config'
+
+export default [
+  { ignores: ['templates/**'] },
+  ...baseConfig,
+]
