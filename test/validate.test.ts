@@ -30,6 +30,14 @@ describe('validateProjectName', () => {
   it(`${'a'.repeat(214)} → 有効（214 文字）`, () => {
     expect(validateProjectName('a'.repeat(214))).toBeUndefined()
   })
+
+  it('空文字 → 無効（必須）', () => {
+    expect(validateProjectName('')).toBeDefined()
+  })
+
+  it('undefined → 無効（必須）', () => {
+    expect(validateProjectName(undefined)).toBeDefined()
+  })
 })
 
 describe('validateOrgName', () => {
@@ -43,6 +51,10 @@ describe('validateOrgName', () => {
 
   it('"bad org!" → 無効（空白・記号）', () => {
     expect(validateOrgName('bad org!')).toBeDefined()
+  })
+
+  it('空文字 → 無効（必須）', () => {
+    expect(validateOrgName('')).toBeDefined()
   })
 })
 
@@ -58,6 +70,10 @@ describe('validateRepoName', () => {
   it('-bad → 無効（ハイフン始まり）', () => {
     expect(validateRepoName('-bad')).toBeDefined()
   })
+
+  it('空文字 → 無効（必須）', () => {
+    expect(validateRepoName('')).toBeDefined()
+  })
 })
 
 describe('validateLicense', () => {
@@ -71,5 +87,9 @@ describe('validateLicense', () => {
 
   it('"MIT License" → 無効（空白）', () => {
     expect(validateLicense('MIT License')).toBeDefined()
+  })
+
+  it('空文字 → 無効（必須）', () => {
+    expect(validateLicense('')).toBeDefined()
   })
 })

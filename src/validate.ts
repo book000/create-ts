@@ -5,7 +5,7 @@
 export function validateProjectName(
   value: string | undefined
 ): string | undefined {
-  if (!value) return undefined // 空値は text() 側でハンドリング
+  if (!value) return 'プロジェクト名は必須です'
   if (value.length > 214 || !/^[a-z0-9][a-z0-9\-_.]*$/.test(value)) {
     return 'プロジェクト名は小文字英数字・ハイフン・アンダースコア・ドットのみ使用できます（最大 214 文字）'
   }
@@ -17,7 +17,7 @@ export function validateProjectName(
  * 英数字・ハイフン・ドットのみ許容。
  */
 export function validateOrgName(value: string | undefined): string | undefined {
-  if (!value) return undefined
+  if (!value) return '組織 / ユーザー名は必須です'
   if (!/^[a-zA-Z0-9][a-zA-Z0-9\-.]*$/.test(value)) {
     return '組織 / ユーザー名は英数字・ハイフン・ドットのみ使用できます'
   }
@@ -31,7 +31,7 @@ export function validateOrgName(value: string | undefined): string | undefined {
 export function validateRepoName(
   value: string | undefined
 ): string | undefined {
-  if (!value) return undefined
+  if (!value) return 'リポジトリ名は必須です'
   if (!/^[a-zA-Z0-9_][a-zA-Z0-9\-_.]*$/.test(value)) {
     return 'リポジトリ名は英数字・ハイフン・アンダースコア・ドットのみ使用できます'
   }
@@ -43,7 +43,7 @@ export function validateRepoName(
  * 英数字・ドット・ハイフンのみ許容。
  */
 export function validateLicense(value: string | undefined): string | undefined {
-  if (!value) return undefined
+  if (!value) return 'ライセンス識別子は必須です'
   if (!/^[a-zA-Z0-9.-]+$/.test(value)) {
     return 'ライセンス識別子は英数字・ドット・ハイフンのみ使用できます（例: MIT, Apache-2.0）'
   }

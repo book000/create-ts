@@ -64,50 +64,60 @@ book000/create-ts/
 
 ## テンプレートソース
 
-テンプレートファイルはすべて `book000/templates` リポジトリから取得する。
-`nodejs/` ディレクトリは `feat/nodejs-template` ブランチ、ワークフローは `master` ブランチを参照する。
+テンプレートファイルはすべてこのリポジトリの `templates/` ディレクトリに同梱されており、実行時の外部取得は行わない。
+`src/template.ts` の `readTemplate()` が `templates/` 配下のファイルを `readFileSync` で読み込む。
 
 ```
-https://raw.githubusercontent.com/book000/templates/feat/nodejs-template/nodejs/
-  common/
-    tsconfig.json
-    .prettierrc.yml
-    eslint.config.mjs
-    renovate.json
-    .depcheckrc.json
-    .fixpackrc
-    pnpm-workspace.yaml
-    .devcontainer/devcontainer.json
-    Dockerfile                    # --docker 時のみ使用
-    entrypoint.sh                 # --docker 時のみ使用
-  base/
-    template.json
-    package.json
-    pnpm-lock.yaml
-    src/main.ts
-  config-batch/
-    template.json
-    package.json
-    pnpm-lock.yaml
-    src/main.ts
-    src/config.ts
-  fastify/
-    template.json
-    package.json
-    pnpm-lock.yaml
-    src/main.ts
-  discord-bot/
-    template.json
-    package.json
-    pnpm-lock.yaml
-    src/main.ts
-    src/config.ts
-    src/discord.ts
-
-https://raw.githubusercontent.com/book000/templates/master/workflows/
-  nodejs-ci-pnpm.yml
-  docker.yml                      # --docker 時のみ使用
-  add-reviewer.yml                # --add-reviewer 時のみ使用
+templates/
+  nodejs/
+    common/
+      tsconfig.json
+      .prettierrc.yml
+      eslint.config.mjs
+      renovate.json
+      .depcheckrc.json
+      .fixpackrc
+      pnpm-workspace.yaml
+      .devcontainer/devcontainer.json
+      Dockerfile                    # --docker 時のみ使用
+      entrypoint.sh                 # --docker 時のみ使用
+    base/
+      template.json
+      package.json
+      pnpm-lock.yaml
+      src/main.ts
+      test/smoke.test.ts            # --test 時のみ使用
+      tsconfig.test.json            # --test 時のみ使用
+    config-batch/
+      template.json
+      package.json
+      pnpm-lock.yaml
+      src/main.ts
+      src/config.ts
+      test/config.test.ts           # --test 時のみ使用
+      tsconfig.test.json            # --test 時のみ使用
+    fastify/
+      template.json
+      package.json
+      pnpm-lock.yaml
+      src/main.ts
+      test/app.test.ts              # --test 時のみ使用
+      tsconfig.test.json            # --test 時のみ使用
+    discord-bot/
+      template.json
+      package.json
+      pnpm-lock.yaml
+      src/main.ts
+      src/config.ts
+      src/discord.ts
+      test/discord.test.ts          # --test 時のみ使用
+      tsconfig.test.json            # --test 時のみ使用
+  workflows/
+    nodejs-ci-pnpm.yml
+    docker.yml                      # --docker 時のみ使用
+    add-reviewer.yml                # --add-reviewer 時のみ使用
+  gitignore/
+    Node.gitignore
 ```
 
 ### template.json のスキーマ
@@ -121,13 +131,14 @@ interface TemplateConfig {
   devDependencies?: string[]     // 参照用メタデータ（処理には使用しない。variant の package.json に既に含まれる）
   scripts?: Record<string, string> // 参照用メタデータ（処理には使用しない。variant の package.json に既に含まれる）
   depcheckIgnore?: string[]      // .depcheckrc.json の ignores に追加するパッケージ
-  src: string[]                  // 取得する src ファイルのパス一覧
+  src: string[]                  // 常にコピーする src ファイルのパス一覧
+  testSrc?: string[]             // --test 有効時のみコピーするテストファイルのパス一覧
 }
 ```
 
 > **注意**: `dependencies` / `devDependencies` / `scripts` フィールドは人間可読なメタデータとして定義されているが、
 > CLI 処理では一切使用しない。これらの内容はすでに各バリアントの `package.json` に組み込まれているため、
-> 改めてマージする処理は不要。CLI が使用するのは `configSchema`・`depcheckIgnore`・`src` の 3 フィールドのみ。
+> 改めてマージする処理は不要。CLI が使用するのは `configSchema`・`depcheckIgnore`・`src`・`testSrc` の 4 フィールド。
 
 各バリアントの実際の値：
 

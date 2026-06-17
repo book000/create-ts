@@ -34,18 +34,18 @@
     "access": "public"
   },
   "dependencies": {
-    "@clack/prompts": "latest",
-    "commander": "latest",
-    "execa": "latest"
+    "@clack/prompts": "^1.5.1",
+    "commander": "^15.0.0",
+    "execa": "^9.6.1"
   },
   "devDependencies": {
-    "@book000/eslint-config": "latest",
-    "@types/node": "latest",
-    "eslint": "latest",
-    "prettier": "latest",
-    "run-z": "latest",
-    "tsdown": "latest",
-    "typescript": "latest",
-    "vitest": "latest"
+    "@book000/eslint-config": "^1.15.3",
+    "@types/node": "^25.9.3",
+    "eslint": "^10.5.0",
+    "prettier": "^3.8.4",
+    "run-z": "^2.1.0",
+    "tsdown": "^0.22.2",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9"
   }
 }

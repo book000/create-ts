@@ -3,6 +3,7 @@ import {
   confirm,
   group,
   isCancel,
+  log,
   note,
   select,
   text,
@@ -15,6 +16,58 @@ import {
   validateProjectName,
   validateRepoName,
 } from './validate.js'
+
+/** 有効なバリアント値の一覧 */
+const VALID_VARIANTS = ['base', 'config-batch', 'fastify', 'discord-bot']
+
+/**
+ * CLI フラグで渡された値をバリデーションし、不正な場合はプロセスを終了する。
+ */
+function validateCliFlags(flags: CliFlags): void {
+  if (flags.name !== undefined) {
+    const err = validateProjectName(flags.name)
+    if (err) {
+      log.error(`Invalid --name: ${err}`)
+      // eslint-disable-next-line unicorn/no-process-exit
+      process.exit(1)
+    }
+  }
+
+  if (flags.org !== undefined) {
+    const err = validateOrgName(flags.org)
+    if (err) {
+      log.error(`Invalid --org: ${err}`)
+      // eslint-disable-next-line unicorn/no-process-exit
+      process.exit(1)
+    }
+  }
+
+  if (flags.repo !== undefined) {
+    const err = validateRepoName(flags.repo)
+    if (err) {
+      log.error(`Invalid --repo: ${err}`)
+      // eslint-disable-next-line unicorn/no-process-exit
+      process.exit(1)
+    }
+  }
+
+  if (flags.license !== undefined) {
+    const err = validateLicense(flags.license)
+    if (err) {
+      log.error(`Invalid --license: ${err}`)
+      // eslint-disable-next-line unicorn/no-process-exit
+      process.exit(1)
+    }
+  }
+
+  if (flags.variant !== undefined && !VALID_VARIANTS.includes(flags.variant)) {
+    log.error(
+      `Invalid --variant: "${flags.variant}". Must be one of: ${VALID_VARIANTS.join(', ')}`
+    )
+    // eslint-disable-next-line unicorn/no-process-exit
+    process.exit(1)
+  }
+}
 
 /** CLI フラグから渡される部分的なオプション */
 export interface CliFlags {
@@ -43,6 +96,9 @@ export async function collectOptions(
   outDir: string,
   flags: CliFlags
 ): Promise<ProjectOptions> {
+  // CLI フラグの値を事前検証する（不正な場合はプロセスを終了）
+  validateCliFlags(flags)
+
   const resolvedDir = path.resolve(outDir)
   const dirBasename = path.basename(resolvedDir)
   const nameDefault =
