@@ -351,12 +351,12 @@ async function main(): Promise<void> {
     s.stop('pnpm-lock.yaml を取得しました')
 
     // ステップ 11: pnpm install
-    s.stop('インストールを開始します...')
+    s.start('pnpm install を実行しています...')
     await execa('pnpm', ['install', '--frozen-lockfile'], {
       cwd: outDir,
       stdio: 'inherit',
     })
-    log.success('依存パッケージをインストールしました')
+    s.stop('依存パッケージをインストールしました')
 
     // ステップ 12: jest 関連の除去（テストなし時）
     if (!options.test) {

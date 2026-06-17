@@ -64,10 +64,11 @@ book000/create-ts/
 
 ## テンプレートソース
 
-テンプレートファイルはすべて `book000/templates` リポジトリの `nodejs/` ディレクトリから取得する。
+テンプレートファイルはすべて `book000/templates` リポジトリから取得する。
+`nodejs/` ディレクトリは `feat/nodejs-template` ブランチ、ワークフローは `master` ブランチを参照する。
 
 ```
-https://raw.githubusercontent.com/book000/templates/master/nodejs/
+https://raw.githubusercontent.com/book000/templates/feat/nodejs-template/nodejs/
   common/
     tsconfig.json
     .prettierrc.yml
@@ -321,7 +322,7 @@ pnpm create @book000/ts [出力ディレクトリ] [オプション]
 
 ### ステップ 2: template.json の取得
 
-`https://raw.githubusercontent.com/book000/templates/master/nodejs/<variant>/template.json`
+`https://raw.githubusercontent.com/book000/templates/feat/nodejs-template/nodejs/<variant>/template.json`
 をフェッチして JSON としてパースする。
 
 ### ステップ 3: 共通テンプレートファイルの取得
@@ -345,7 +346,7 @@ Dockerfile
 entrypoint.sh
 ```
 
-取得元 URL: `https://raw.githubusercontent.com/book000/templates/master/nodejs/common/<ファイル名>`
+取得元 URL: `https://raw.githubusercontent.com/book000/templates/feat/nodejs-template/nodejs/common/<ファイル名>`
 
 必要に応じて親ディレクトリを作成する（`.devcontainer/` 等）。
 
@@ -353,7 +354,7 @@ entrypoint.sh
 
 `template.json` の `src` フィールドに列挙されたファイルを `fetch()` で個別取得して出力ディレクトリに配置する。
 
-取得元 URL: `https://raw.githubusercontent.com/book000/templates/master/nodejs/<variant>/<srcFile>`
+取得元 URL: `https://raw.githubusercontent.com/book000/templates/feat/nodejs-template/nodejs/<variant>/<srcFile>`
 
 必要に応じて親ディレクトリを作成する（`src/` 等）。
 
@@ -436,7 +437,7 @@ ESM / CJS 問わず適用する。
 
 #### 9-1. バリアントの package.json を取得
 
-`https://raw.githubusercontent.com/book000/templates/master/nodejs/<variant>/package.json`
+`https://raw.githubusercontent.com/book000/templates/feat/nodejs-template/nodejs/<variant>/package.json`
 を取得し、JSON としてパース。
 
 このファイルは CI テスト済みのテンプレート。`name` や `description` 等はプレースホルダー値。
@@ -498,7 +499,7 @@ BOM なし UTF-8 で保存する。
 
 ### ステップ 10: pnpm-lock.yaml の取得
 
-`https://raw.githubusercontent.com/book000/templates/master/nodejs/<variant>/pnpm-lock.yaml`
+`https://raw.githubusercontent.com/book000/templates/feat/nodejs-template/nodejs/<variant>/pnpm-lock.yaml`
 を取得して出力ディレクトリに保存する。
 
 このファイルは CI テスト済みの固定バージョン lockfile。次の `pnpm install --frozen-lockfile` の前提条件。
@@ -715,11 +716,35 @@ on:
     branches:
       - main
       - master
+  pull_request_target:
+    branches:
+      - main
+      - master
+    types:
+      - opened
+      - synchronize
+      - reopened
   merge_group:
 
 jobs:
+  post-approval-request:
+    # fork PR の場合に承認コメントを投稿する（fork でない場合はスキップ）
+    name: Post approval request
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository && ...
+    permissions:
+      issues: write
+      pull-requests: write
+
+  approval-gate:
+    # fork PR のビルドを Environment 保護で承認制御する
+    name: Approval gate
+    needs: post-approval-request
+    environment: ${{ ... && 'fork-pr-build' || '' }}
+
   node-ci:
     name: Node CI
+    needs: approval-gate
     uses: book000/templates/.github/workflows/reusable-nodejs-ci-pnpm.yml@master
 ```
 
@@ -742,8 +767,8 @@ jobs:
    - `custom_release_rules`: `feat:minor`, `fix:patch`, `docs:patch`, `chore:patch`, `refactor:patch`, `build:patch`, `ci:patch`, `revert:patch`, `style:patch`, `test:patch`（`release:major` は除外 — v0 フェーズ中はメジャーバンプなし）
 8. `pnpm version --no-git-tag-version ${{ steps.tag-version.outputs.new_version }}`（package.json のバージョンを更新）
 9. `pnpm run build`
-10. `dist/index.js` の存在確認
-11. `pnpm pack` で tarball を作成し `dist/index.js` が含まれることを確認
+10. `dist/index.mjs` の存在確認
+11. `pnpm pack` で tarball を作成し `dist/index.mjs` が含まれることを確認
 12. `pnpm run lint`
 13. `pnpm publish --access public --no-git-checks --ignore-scripts`（環境変数 `NPM_CONFIG_PROVENANCE: "true"` を設定して実行）
 14. `ncipollo/release-action@v1.21.0` で GitHub Release を作成
