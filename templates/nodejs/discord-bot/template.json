@@ -6,5 +6,6 @@
     "generate-schema": "typescript-json-schema --required src/config.ts ConfigInterface -o schema/Configuration.json"
   },
   "depcheckIgnore": ["typescript-json-schema"],
-  "src": ["src/main.ts", "src/config.ts", "src/discord.ts"]
+  "src": ["src/main.ts", "src/config.ts", "src/discord.ts"],
+  "testSrc": ["test/discord.test.ts", "tsconfig.test.json"]
 }

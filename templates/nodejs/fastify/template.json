@@ -4,5 +4,6 @@
   "devDependencies": ["fastify-raw-body"],
   "scripts": {},
   "depcheckIgnore": ["fastify-raw-body"],
-  "src": ["src/main.ts"]
+  "src": ["src/main.ts"],
+  "testSrc": ["test/app.test.ts", "tsconfig.test.json"]
 }

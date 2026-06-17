@@ -28,5 +28,8 @@ export interface TemplateConfig {
   devDependencies?: string[]
   scripts?: Record<string, string>
   depcheckIgnore?: string[]
+  /** 常にコピーする src ファイルのリスト */
   src: string[]
+  /** --test 有効時のみコピーするテストファイルのリスト */
+  testSrc?: string[]
 }

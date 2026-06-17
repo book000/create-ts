@@ -194,14 +194,17 @@ async function main(): Promise<void> {
     s.stop(`共通ファイルをコピーしました (${commonFiles.length} ファイル)`)
 
     // ステップ 4: バリアント src ファイルのコピー
+    const filesToCopy = [...templateConfig.src]
+    if (options.test && templateConfig.testSrc) {
+      filesToCopy.push(...templateConfig.testSrc)
+    }
+
     s.start('src ファイルをコピーしています...')
-    for (const srcFile of templateConfig.src) {
+    for (const srcFile of filesToCopy) {
       const content = readTemplate(`nodejs/${options.variant}/${srcFile}`)
       writeFile(path.join(outDir, srcFile), content)
     }
-    s.stop(
-      `src ファイルをコピーしました (${templateConfig.src.length} ファイル)`
-    )
+    s.stop(`src ファイルをコピーしました (${filesToCopy.length} ファイル)`)
 
     // ステップ 5: tsconfig.json のパッチ
     const tsconfigPath = path.join(outDir, 'tsconfig.json')
