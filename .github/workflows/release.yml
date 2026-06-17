@@ -55,7 +55,7 @@ jobs:
           custom_release_rules: feat:minor,fix:patch,docs:patch,chore:patch,refactor:patch,build:patch,ci:patch,revert:patch,style:patch,test:patch
 
       - name: Update package.json version
-        run: pnpm version --no-git-tag-version ${{ steps.tag-version.outputs.new_version }}
+        run: npm version --no-git-tag-version --allow-same-version ${{ steps.tag-version.outputs.new_version }}
 
       - name: Build
         run: pnpm run build
