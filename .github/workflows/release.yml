@@ -6,79 +6,93 @@ on:
       - main
       - master
 
-permissions:
-  contents: write
-  issues: write
-  pull-requests: write
-  id-token: write
+concurrency:
+  group: ${{ github.workflow }}
 
 jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
+
     steps:
-      - name: Checkout
+      - name: 🛎 Checkout
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
+        id: pnpm-install
+        with:
+          run_install: false
 
-      - name: Setup Node.js
+      - name: 🏗 Setup node
         uses: actions/setup-node@v6
         with:
           node-version-file: .node-version
-          registry-url: https://registry.npmjs.org
+          registry-url: 'https://registry.npmjs.org'
 
-      - name: Cache pnpm store
+      - name: 📂 Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: 📂 Setup pnpm cache
         uses: actions/cache@v5
         with:
-          path: ~/.local/share/pnpm/store
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
-      - name: Install npm@^11.5.1
-        run: npm install -g npm@^11.5.1
+      - name: Update npm
+        run: npm install -g npm@latest
 
-      - name: Install dependencies
+      - name: 👨🏻‍💻 Install dependencies
         run: pnpm install --frozen-lockfile --prefer-frozen-lockfile
 
-      - name: Bump version and create tag
+      - name: 🏷 Bump version and push tag
         id: tag-version
         uses: mathieudutour/github-tag-action@v6.2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           default_bump: minor
-          custom_release_rules: feat:minor,fix:patch,docs:patch,chore:patch,refactor:patch,build:patch,ci:patch,revert:patch,style:patch,test:patch
+          custom_release_rules: 'feat:minor,fix:patch,docs:patch,chore:patch,refactor:patch,build:patch,ci:patch,revert:patch,style:patch,test:patch'
 
-      - name: Update package.json version
+      - name: 📝 Update package.json version
         run: npm version --no-git-tag-version --allow-same-version ${{ steps.tag-version.outputs.new_version }}
 
-      - name: Build
+      - name: 🏃 Build
         run: pnpm run build
 
-      - name: Verify dist/index.mjs exists
+      - name: 🔍 Verify dist/index.mjs exists
         run: test -f dist/index.mjs
 
-      - name: Pack and verify dist/index.mjs is included
+      - name: 📦 Pack and verify dist/index.mjs is included
         run: |
           pnpm pack
           tar -tzf *.tgz | grep dist/index.mjs
 
-      - name: Lint
+      - name: 🔬 Lint
         run: pnpm run lint
 
-      - name: Publish to npm
+      - name: 🚀 Publish
         run: pnpm publish --access public --no-git-checks --ignore-scripts
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_CONFIG_PROVENANCE: "true"
 
-      - name: Create GitHub Release
+      - name: 📃 Create Release
         uses: ncipollo/release-action@v1.21.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag: ${{ steps.tag-version.outputs.new_tag }}
           name: ${{ steps.tag-version.outputs.new_tag }}
           body: ${{ steps.tag-version.outputs.changelog }}
+          draft: false
+          prerelease: false
