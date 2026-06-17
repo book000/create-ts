@@ -9,38 +9,38 @@ importers:
   .:
     dependencies:
       '@clack/prompts':
-        specifier: latest
+        specifier: ^1.5.1
         version: 1.5.1
       commander:
-        specifier: latest
+        specifier: ^15.0.0
         version: 15.0.0
       execa:
-        specifier: latest
+        specifier: ^9.6.1
         version: 9.6.1
     devDependencies:
       '@book000/eslint-config':
-        specifier: latest
+        specifier: ^1.15.3
         version: 1.15.3(eslint@10.5.0)(typescript@6.0.3)
       '@types/node':
-        specifier: latest
+        specifier: ^25.9.3
         version: 25.9.3
       eslint:
-        specifier: latest
+        specifier: ^10.5.0
         version: 10.5.0
       prettier:
-        specifier: latest
+        specifier: ^3.8.4
         version: 3.8.4
       run-z:
-        specifier: latest
+        specifier: ^2.1.0
         version: 2.1.0
       tsdown:
-        specifier: latest
+        specifier: ^0.22.2
         version: 0.22.2(typescript@6.0.3)
       typescript:
-        specifier: latest
+        specifier: ^6.0.3
         version: 6.0.3
       vitest:
-        specifier: latest
+        specifier: ^4.1.9
         version: 4.1.9(@types/node@25.9.3)(vite@8.0.16(@types/node@25.9.3))
 
 packages:
@@ -2307,8 +2307,8 @@ snapshots:
 
   '@typescript-eslint/project-service@8.61.0(typescript@6.0.3)':
     dependencies:
-      '@typescript-eslint/tsconfig-utils': 8.61.0(typescript@6.0.3)
-      '@typescript-eslint/types': 8.61.0
+      '@typescript-eslint/tsconfig-utils': 8.61.1(typescript@6.0.3)
+      '@typescript-eslint/types': 8.61.1
       debug: 4.4.3
       typescript: 6.0.3
     transitivePeerDependencies:
