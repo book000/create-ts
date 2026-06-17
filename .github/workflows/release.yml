@@ -51,7 +51,6 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           default_bump: minor
-          initial_version: 0.1.0
           custom_release_rules: feat:minor,fix:patch,docs:patch,chore:patch,refactor:patch,build:patch,ci:patch,revert:patch,style:patch,test:patch
 
       - name: Update package.json version
