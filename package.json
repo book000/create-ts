@@ -1,6 +1,6 @@
 {
   "name": "@book000/create-ts",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "description": "Create book000-style TypeScript projects",
   "license": "MIT",
   "author": "book000",
