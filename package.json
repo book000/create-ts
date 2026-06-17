@@ -2,6 +2,10 @@
   "name": "@book000/create-ts",
   "version": "0.0.0",
   "description": "Create book000-style TypeScript projects",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/book000/create-ts"
+  },
   "license": "MIT",
   "author": "book000",
   "type": "module",
