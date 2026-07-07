@@ -19,7 +19,7 @@
     "templates"
   ],
   "engines": {
-    "node": ">=20"
+    "node": "v26.4.0"
   },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
@@ -38,18 +38,18 @@
     "access": "public"
   },
   "dependencies": {
-    "@clack/prompts": "^1.5.1",
-    "commander": "^15.0.0",
-    "execa": "^9.6.1"
+    "@clack/prompts": "1.5.1",
+    "commander": "15.0.0",
+    "execa": "9.6.1"
   },
   "devDependencies": {
-    "@book000/eslint-config": "^1.15.3",
-    "@types/node": "^25.9.3",
-    "eslint": "^10.5.0",
-    "prettier": "^3.8.4",
-    "run-z": "^2.1.0",
-    "tsdown": "^0.22.2",
-    "typescript": "^6.0.3",
-    "vitest": "^4.1.9"
+    "@book000/eslint-config": "1.15.3",
+    "@types/node": "25.9.3",
+    "eslint": "10.5.0",
+    "prettier": "3.8.4",
+    "run-z": "2.1.0",
+    "tsdown": "0.22.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.9"
   }
 }
