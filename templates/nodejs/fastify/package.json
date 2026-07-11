@@ -18,8 +18,8 @@
     "fix:prettier": "prettier --write src/"
   },
   "dependencies": {
-    "@fastify/cors": "11.2.0",
-    "fastify": "5.8.5"
+    "@fastify/cors": "11.3.0",
+    "fastify": "5.10.0"
   },
   "devDependencies": {
     "@book000/eslint-config": "1.15.4",
