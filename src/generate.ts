@@ -108,11 +108,11 @@ export function patchDockerWorkflow(
   let result = content
   result = result.replaceAll(
     'tomacheese/twitter-dm-memo',
-    `${org.toLowerCase()}/${repo.toLowerCase()}`
+    () => `${org.toLowerCase()}/${repo.toLowerCase()}`
   )
   result = result.replaceAll(
     'packageName: "twitter-dm-memo"',
-    `packageName: "${repo}"`
+    () => `packageName: "${repo}"`
   )
   return result
 }
@@ -122,10 +122,10 @@ export function patchDockerWorkflow(
  * バンドルされた Node.gitignore（pnpm セクション付き）をベースに、
  * 任意で data/ セクションを追記する。
  */
-export function generateGitignore(ignoreData: boolean): string {
+export function generateGitignore(shouldIgnoreData: boolean): string {
   let result = readTemplate('gitignore/Node.gitignore')
 
-  if (ignoreData) {
+  if (shouldIgnoreData) {
     result += '\n\n# データディレクトリ\ndata/'
   }
 
@@ -139,19 +139,19 @@ export function generateGitignore(ignoreData: boolean): string {
 export function updateDepcheck(
   depcheckJson: Record<string, unknown>,
   depcheckIgnore: string[],
-  test: boolean
+  shouldAddTest: boolean
 ): Record<string, unknown> {
   const result = structuredClone(depcheckJson)
   const ignores: string[] = (result.ignores as string[] | undefined) ?? []
   result.ignores = ignores
 
-  for (const pkg of depcheckIgnore) {
-    if (!ignores.includes(pkg)) {
-      ignores.push(pkg)
+  for (const package_ of depcheckIgnore) {
+    if (!ignores.includes(package_)) {
+      ignores.push(package_)
     }
   }
 
-  if (test && !ignores.includes('@types/jest')) {
+  if (shouldAddTest && !ignores.includes('@types/jest')) {
     ignores.push('@types/jest')
   }
 

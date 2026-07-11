@@ -126,16 +126,16 @@ describe('patchPackageJson', () => {
 describe('patchTsConfig', () => {
   it('CJS（デフォルト）: module が "commonjs" のまま', () => {
     const result = patchTsConfig(BASE_TSCONFIG, { esm: false, test: false })
-    const opts = (result as typeof BASE_TSCONFIG).compilerOptions
-    expect(opts.module).toBe('commonjs')
-    expect(opts.moduleResolution).toBe('bundler')
+    const options = (result as typeof BASE_TSCONFIG).compilerOptions
+    expect(options.module).toBe('commonjs')
+    expect(options.moduleResolution).toBe('bundler')
   })
 
   it('ESM: module が "es2015" になり moduleResolution は "bundler" のまま', () => {
     const result = patchTsConfig(BASE_TSCONFIG, { esm: true, test: false })
-    const opts = (result as typeof BASE_TSCONFIG).compilerOptions
-    expect(opts.module).toBe('es2015')
-    expect(opts.moduleResolution).toBe('bundler')
+    const options = (result as typeof BASE_TSCONFIG).compilerOptions
+    expect(options.module).toBe('es2015')
+    expect(options.moduleResolution).toBe('bundler')
   })
 
   it('--test: types に "jest" が追加される', () => {
@@ -230,7 +230,7 @@ describe('updateDepcheck', () => {
       false
     )
     const ignores = (result as typeof BASE_DEPCHECK).ignores
-    const count = ignores.filter((i) => i === 'typescript-json-schema').length
+    const count = ignores.filter((index) => index === 'typescript-json-schema').length
     expect(count).toBe(1)
   })
 })

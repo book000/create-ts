@@ -23,9 +23,9 @@ const { version } = JSON.parse(
 
 /** ファイルを書き込む。親ディレクトリが存在しない場合は作成する。 */
 function writeFile(filePath: string, content: string): void {
-  const dir = path.dirname(filePath)
-  if (!existsSync(dir)) {
-    mkdirSync(dir, { recursive: true })
+  const directory = path.dirname(filePath)
+  if (!existsSync(directory)) {
+    mkdirSync(directory, { recursive: true })
   }
   writeFileSync(filePath, content, 'utf8')
 }
@@ -35,11 +35,8 @@ async function checkPrerequisites(): Promise<number> {
   let nodeMajor: number
 
   try {
-    const { stdout: nodeVer } = await execa('node', ['--version'])
-    nodeMajor = Number.parseInt(
-      nodeVer.trim().replace('v', '').split('.', 1)[0],
-      10
-    )
+    const { stdout: nodeVersion } = await execa('node', ['--version'])
+    nodeMajor = Number(nodeVersion.trim().replace('v', '').split('.', 1)[0])
   } catch {
     log.error('Error: node not found. Please install Node.js v20 or later.')
     process.exit(1)
@@ -104,15 +101,15 @@ async function main(): Promise<void> {
 
   program.parse()
 
-  const outDirArg = program.args[0] ?? '.'
-  const outDir = path.resolve(outDirArg)
-  const opts = program.opts()
+  const outputDirectoryArgument = program.args[0] ?? '.'
+  const outputDirectory = path.resolve(outputDirectoryArgument)
+  const options_ = program.opts()
 
   /** CLI で明示的に指定されたかどうか確認して boolean | undefined を返す */
   const getCLIBoolFlag = (name: string): boolean | undefined => {
     const source = program.getOptionValueSource(name)
     if (source === 'cli' || source === 'env') {
-      return opts[name] as boolean
+      return options_[name] as boolean
     }
     return undefined
   }
@@ -126,33 +123,33 @@ async function main(): Promise<void> {
   s.stop('前提条件を確認しました')
 
   // 対話プロンプトでオプション収集
-  const options = await collectOptions(outDir, {
-    name: opts.name as string | undefined,
-    org: opts.org as string | undefined,
-    repo: opts.repo as string | undefined,
-    description: opts.description as string | undefined,
-    author: opts.author as string | undefined,
-    license: opts.license as string | undefined,
-    homepage: opts.homepage as string | undefined,
-    bugUrl: opts.bugUrl as string | undefined,
-    variant: opts.variant as string | undefined,
+  const options = await collectOptions(outputDirectory, {
+    name: options_.name as string | undefined,
+    org: options_.org as string | undefined,
+    repo: options_.repo as string | undefined,
+    description: options_.description as string | undefined,
+    author: options_.author as string | undefined,
+    license: options_.license as string | undefined,
+    homepage: options_.homepage as string | undefined,
+    bugUrl: options_.bugUrl as string | undefined,
+    variant: options_.variant as string | undefined,
     esm: getCLIBoolFlag('esm'),
     test: getCLIBoolFlag('test'),
     docker: getCLIBoolFlag('docker'),
     ignoreData: getCLIBoolFlag('ignoreData'),
     addReviewer: getCLIBoolFlag('addReviewer'),
-    overwrite: opts.overwrite as boolean | undefined,
+    overwrite: options_.overwrite as boolean | undefined,
   })
 
   // 既存ファイルの確認
   if (!options.overwrite) {
     const hasExisting =
-      existsSync(path.join(outDir, 'package.json')) ||
-      existsSync(path.join(outDir, 'tsconfig.json')) ||
-      existsSync(path.join(outDir, 'src'))
+      existsSync(path.join(outputDirectory, 'package.json')) ||
+      existsSync(path.join(outputDirectory, 'tsconfig.json')) ||
+      existsSync(path.join(outputDirectory, 'src'))
 
     if (hasExisting) {
-      await confirmOverwrite(outDir)
+      await confirmOverwrite(outputDirectory)
     }
   }
 
@@ -160,8 +157,8 @@ async function main(): Promise<void> {
   displaySummary(options)
 
   // 出力ディレクトリを作成
-  if (!existsSync(outDir)) {
-    mkdirSync(outDir, { recursive: true })
+  if (!existsSync(outputDirectory)) {
+    mkdirSync(outputDirectory, { recursive: true })
   }
 
   try {
@@ -189,7 +186,7 @@ async function main(): Promise<void> {
     s.start('共通ファイルをコピーしています...')
     for (const file of commonFiles) {
       const content = readTemplate(`nodejs/common/${file}`)
-      writeFile(path.join(outDir, file), content)
+      writeFile(path.join(outputDirectory, file), content)
     }
     s.stop(`共通ファイルをコピーしました (${commonFiles.length} ファイル)`)
 
@@ -200,14 +197,14 @@ async function main(): Promise<void> {
     }
 
     s.start('src ファイルをコピーしています...')
-    for (const srcFile of filesToCopy) {
-      const content = readTemplate(`nodejs/${options.variant}/${srcFile}`)
-      writeFile(path.join(outDir, srcFile), content)
+    for (const sourceFile of filesToCopy) {
+      const content = readTemplate(`nodejs/${options.variant}/${sourceFile}`)
+      writeFile(path.join(outputDirectory, sourceFile), content)
     }
     s.stop(`src ファイルをコピーしました (${filesToCopy.length} ファイル)`)
 
     // ステップ 5: tsconfig.json のパッチ
-    const tsconfigPath = path.join(outDir, 'tsconfig.json')
+    const tsconfigPath = path.join(outputDirectory, 'tsconfig.json')
     const tsconfig = JSON.parse(readFileSync(tsconfigPath, 'utf8')) as Record<
       string,
       unknown
@@ -222,12 +219,16 @@ async function main(): Promise<void> {
     // ステップ 6: .gitignore / .node-version の生成
     s.start('.gitignore を生成しています...')
     const gitignoreContent = generateGitignore(options.ignoreData)
-    writeFileSync(path.join(outDir, '.gitignore'), gitignoreContent, 'utf8')
+    writeFileSync(
+      path.join(outputDirectory, '.gitignore'),
+      gitignoreContent,
+      'utf8'
+    )
 
     const { stdout: nodeVersion } = await execa('node', ['--version'])
     const nodeVersionNumber = nodeVersion.trim().replace('v', '')
     writeFileSync(
-      path.join(outDir, '.node-version'),
+      path.join(outputDirectory, '.node-version'),
       `${nodeVersionNumber}\n`,
       'utf8'
     )
@@ -236,15 +237,15 @@ async function main(): Promise<void> {
     // ステップ 7: LICENSE の生成
     s.start('LICENSE を生成しています...')
     try {
-      const licenseRes = await fetch(
+      const licenseResponse = await fetch(
         `https://api.github.com/licenses/${options.license.toLowerCase()}`
       )
-      if (!licenseRes.ok) throw new Error(`HTTP ${licenseRes.status}`)
-      const licenseJson = (await licenseRes.json()) as { body: string }
+      if (!licenseResponse.ok) throw new Error(`HTTP ${licenseResponse.status}`)
+      const licenseJson = (await licenseResponse.json()) as { body: string }
       const licenseText = licenseJson.body
-        .replaceAll('[year]', String(new Date().getFullYear()))
-        .replaceAll('[fullname]', options.author)
-      writeFileSync(path.join(outDir, 'LICENSE'), licenseText, 'utf8')
+        .replaceAll('[year]', () => String(new Date().getFullYear()))
+        .replaceAll('[fullname]', () => options.author)
+      writeFileSync(path.join(outputDirectory, 'LICENSE'), licenseText, 'utf8')
       s.stop('LICENSE を生成しました')
     } catch {
       s.stop('LICENSE の取得をスキップしました（取得失敗）')
@@ -255,11 +256,15 @@ async function main(): Promise<void> {
 
     // ステップ 8: ワークフローファイルのコピー
     s.start('ワークフローファイルをコピーしています...')
-    const workflowDir = path.join(outDir, '.github', 'workflows')
-    mkdirSync(workflowDir, { recursive: true })
+    const workflowDirectory = path.join(outputDirectory, '.github', 'workflows')
+    mkdirSync(workflowDirectory, { recursive: true })
 
     const ciYml = readTemplate('workflows/nodejs-ci-pnpm.yml')
-    writeFileSync(path.join(workflowDir, 'nodejs-ci-pnpm.yml'), ciYml, 'utf8')
+    writeFileSync(
+      path.join(workflowDirectory, 'nodejs-ci-pnpm.yml'),
+      ciYml,
+      'utf8'
+    )
 
     if (options.docker) {
       const dockerYml = readTemplate('workflows/docker.yml')
@@ -275,17 +280,17 @@ async function main(): Promise<void> {
         )
       }
       writeFileSync(
-        path.join(workflowDir, 'docker.yml'),
+        path.join(workflowDirectory, 'docker.yml'),
         patchedDockerYml,
         'utf8'
       )
     }
 
     if (options.addReviewer) {
-      const addReviewerYml = readTemplate('workflows/add-reviewer.yml')
+      const reviewerWorkflowYml = readTemplate('workflows/add-reviewer.yml')
       writeFileSync(
-        path.join(workflowDir, 'add-reviewer.yml'),
-        addReviewerYml,
+        path.join(workflowDirectory, 'add-reviewer.yml'),
+        reviewerWorkflowYml,
         'utf8'
       )
     }
@@ -296,18 +301,25 @@ async function main(): Promise<void> {
     s.start('package.json を生成しています...')
 
     // 9-1: バリアントの package.json を読み込み
-    const variantPkgText = readTemplate(
+    const variantPackageText = readTemplate(
       `nodejs/${options.variant}/package.json`
     )
-    const variantPkgJson = JSON.parse(variantPkgText) as Record<string, unknown>
+    const variantPackageJson = JSON.parse(variantPackageText) as Record<
+      string,
+      unknown
+    >
 
     // 9-2〜9-4: プロジェクト固有の値を適用
-    const patchedPkgJson = patchPackageJson(variantPkgJson, options, nodeMajor)
+    const patchedPackageJson = patchPackageJson(
+      variantPackageJson,
+      options,
+      nodeMajor
+    )
 
     // 9-5: .depcheckrc.json の更新
     const depcheckIgnore = templateConfig.depcheckIgnore ?? []
     if (depcheckIgnore.length > 0 || options.test) {
-      const depcheckPath = path.join(outDir, '.depcheckrc.json')
+      const depcheckPath = path.join(outputDirectory, '.depcheckrc.json')
       const depcheckJson = JSON.parse(
         readFileSync(depcheckPath, 'utf8')
       ) as Record<string, unknown>
@@ -325,13 +337,13 @@ async function main(): Promise<void> {
 
     // 9-6: schema/ ディレクトリの作成
     if (templateConfig.configSchema) {
-      mkdirSync(path.join(outDir, 'schema'), { recursive: true })
+      mkdirSync(path.join(outputDirectory, 'schema'), { recursive: true })
     }
 
     // 9-7: package.json の保存
     writeFileSync(
-      path.join(outDir, 'package.json'),
-      JSON.stringify(patchedPkgJson, null, 2) + '\n',
+      path.join(outputDirectory, 'package.json'),
+      JSON.stringify(patchedPackageJson, null, 2) + '\n',
       'utf8'
     )
     s.stop('package.json を生成しました')
@@ -339,13 +351,17 @@ async function main(): Promise<void> {
     // ステップ 10: pnpm-lock.yaml のコピー
     s.start('pnpm-lock.yaml をコピーしています...')
     const pnpmLock = readTemplate(`nodejs/${options.variant}/pnpm-lock.yaml`)
-    writeFileSync(path.join(outDir, 'pnpm-lock.yaml'), pnpmLock, 'utf8')
+    writeFileSync(
+      path.join(outputDirectory, 'pnpm-lock.yaml'),
+      pnpmLock,
+      'utf8'
+    )
     s.stop('pnpm-lock.yaml をコピーしました')
 
     // ステップ 11: pnpm install
     s.start('pnpm install を実行しています...')
     await execa('pnpm', ['install', '--frozen-lockfile'], {
-      cwd: outDir,
+      cwd: outputDirectory,
       stdio: 'inherit',
     })
     s.stop('依存パッケージをインストールしました')
@@ -354,7 +370,7 @@ async function main(): Promise<void> {
     if (!options.test) {
       s.start('Jest 関連パッケージを削除しています...')
       await execa('pnpm', ['remove', 'jest', '@types/jest', 'ts-jest'], {
-        cwd: outDir,
+        cwd: outputDirectory,
       })
       s.stop('Jest 関連パッケージを削除しました')
     }
@@ -362,14 +378,14 @@ async function main(): Promise<void> {
     // ステップ 13: fixpack / fixdevcontainer
     s.start('fixpack を実行しています...')
     try {
-      await execa('npx', ['--yes', 'fixpack'], { cwd: outDir })
+      await execa('npx', ['--yes', 'fixpack'], { cwd: outputDirectory })
       s.stop('fixpack を実行しました')
     } catch {
       s.stop('fixpack をスキップしました（失敗）')
     }
 
     try {
-      await execa('npx', ['--yes', 'fixdevcontainer'], { cwd: outDir })
+      await execa('npx', ['--yes', 'fixdevcontainer'], { cwd: outputDirectory })
       log.success('fixdevcontainer を実行しました')
     } catch {
       log.warn('fixdevcontainer をスキップしました（失敗）')
@@ -388,13 +404,13 @@ async function main(): Promise<void> {
       '  2. pnpm run lint',
     ]
 
-    let stepNum = 3
+    let stepNumber = 3
     if (templateConfig.configSchema) {
-      completionLines.push(`  ${stepNum}. pnpm run generate-schema`)
-      stepNum++
+      completionLines.push(`  ${stepNumber}. pnpm run generate-schema`)
+      stepNumber++
     }
     if (options.test) {
-      completionLines.push(`  ${stepNum}. pnpm run test`)
+      completionLines.push(`  ${stepNumber}. pnpm run test`)
     }
 
     outro(completionLines.join('\n'))
@@ -404,7 +420,9 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((error: unknown) => {
+try {
+  await main()
+} catch (error) {
   log.error(`予期しないエラーが発生しました: ${(error as Error).message}`)
   process.exit(1)
-})
+}

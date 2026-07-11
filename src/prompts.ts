@@ -25,36 +25,36 @@ const VALID_VARIANTS = ['base', 'config-batch', 'fastify', 'discord-bot']
  */
 function validateCliFlags(flags: CliFlags): void {
   if (flags.name !== undefined) {
-    const err = validateProjectName(flags.name)
-    if (err) {
-      log.error(`Invalid --name: ${err}`)
+    const error = validateProjectName(flags.name)
+    if (error) {
+      log.error(`Invalid --name: ${error}`)
       // eslint-disable-next-line unicorn/no-process-exit
       process.exit(1)
     }
   }
 
   if (flags.org !== undefined) {
-    const err = validateOrgName(flags.org)
-    if (err) {
-      log.error(`Invalid --org: ${err}`)
+    const error = validateOrgName(flags.org)
+    if (error) {
+      log.error(`Invalid --org: ${error}`)
       // eslint-disable-next-line unicorn/no-process-exit
       process.exit(1)
     }
   }
 
   if (flags.repo !== undefined) {
-    const err = validateRepoName(flags.repo)
-    if (err) {
-      log.error(`Invalid --repo: ${err}`)
+    const error = validateRepoName(flags.repo)
+    if (error) {
+      log.error(`Invalid --repo: ${error}`)
       // eslint-disable-next-line unicorn/no-process-exit
       process.exit(1)
     }
   }
 
   if (flags.license !== undefined) {
-    const err = validateLicense(flags.license)
-    if (err) {
-      log.error(`Invalid --license: ${err}`)
+    const error = validateLicense(flags.license)
+    if (error) {
+      log.error(`Invalid --license: ${error}`)
       // eslint-disable-next-line unicorn/no-process-exit
       process.exit(1)
     }
@@ -93,17 +93,18 @@ export interface CliFlags {
  * CLI フラグで指定済みの項目はスキップする。
  */
 export async function collectOptions(
-  outDir: string,
+  outputDirectory: string,
   flags: CliFlags
 ): Promise<ProjectOptions> {
   // CLI フラグの値を事前検証する（不正な場合はプロセスを終了）
   validateCliFlags(flags)
 
-  const resolvedDir = path.resolve(outDir)
-  const dirBasename = path.basename(resolvedDir)
+  const resolvedDirectory = path.resolve(outputDirectory)
+  const directoryBasename = path.basename(resolvedDirectory)
   const nameDefault =
-    dirBasename !== '.' && /^[a-z0-9][a-z0-9\-_.]*$/.test(dirBasename)
-      ? dirBasename
+    directoryBasename !== '.' &&
+    /^[a-z0-9][a-z0-9\-_.]*$/.test(directoryBasename)
+      ? directoryBasename
       : undefined
 
   const answers = await group(
@@ -280,7 +281,7 @@ export async function collectOptions(
     ignoreData: answers.ignoreData,
     addReviewer: answers.addReviewer,
     overwrite: flags.overwrite ?? false,
-    outDir,
+    outDir: outputDirectory,
   }
 }
 
@@ -305,9 +306,9 @@ export function displaySummary(options: ProjectOptions): void {
  * 既存ファイルの上書き確認を行う。
  * キャンセル / 拒否時はプロセスを終了する。
  */
-export async function confirmOverwrite(outDir: string): Promise<void> {
+export async function confirmOverwrite(outputDirectory: string): Promise<void> {
   const confirmed = await confirm({
-    message: `${outDir} に既存のファイルがあります。上書きしますか？`,
+    message: `${outputDirectory} に既存のファイルがあります。上書きしますか？`,
   })
   if (isCancel(confirmed) || !confirmed) {
     cancel('セットアップを中断しました')
