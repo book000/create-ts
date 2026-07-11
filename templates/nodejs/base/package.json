@@ -30,7 +30,7 @@
     "typescript": "6.0.3"
   },
   "engines": {
-    "node": "v26.4.0"
+    "node": "26.5.0"
   },
   "repository": {
     "type": "git",
