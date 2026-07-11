@@ -727,35 +727,11 @@ on:
     branches:
       - main
       - master
-  pull_request_target:
-    branches:
-      - main
-      - master
-    types:
-      - opened
-      - synchronize
-      - reopened
   merge_group:
 
 jobs:
-  post-approval-request:
-    # fork PR の場合に承認コメントを投稿する（fork でない場合はスキップ）
-    name: Post approval request
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository && ...
-    permissions:
-      issues: write
-      pull-requests: write
-
-  approval-gate:
-    # fork PR のビルドを Environment 保護で承認制御する
-    name: Approval gate
-    needs: post-approval-request
-    environment: ${{ ... && 'fork-pr-build' || '' }}
-
   node-ci:
     name: Node CI
-    needs: approval-gate
     uses: book000/templates/.github/workflows/reusable-nodejs-ci-pnpm.yml@master
 ```
 
