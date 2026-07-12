@@ -19,7 +19,7 @@
     "generate-schema": "typescript-json-schema --required src/config.ts ConfigInterface -o schema/Configuration.json"
   },
   "dependencies": {
-    "@book000/node-utils": "1.24.274",
+    "@book000/node-utils": "1.24.275",
     "discord.js": "14.26.4"
   },
   "devDependencies": {
