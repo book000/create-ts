@@ -1,2 +1,13 @@
 minimumReleaseAgeExclude:
   - '@book000/*'
+
+# rolldown-plugin-dts@0.27.10+ ships a public .d.mts that unconditionally
+# references `typeof import("@volar/typescript")` types, even though
+# @volar/typescript is only an optional peer dependency and is never
+# installed here. This breaks `tsc` (TS2307) for any consumer with
+# skipLibCheck disabled, regardless of whether the Volar-related feature
+# is used. Pin to the last known-good version until upstream fixes the
+# type leak (no issue filed upstream as of 2026-07-22; see
+# https://github.com/sxzz/rolldown-plugin-dts).
+overrides:
+  rolldown-plugin-dts: '0.27.9'
