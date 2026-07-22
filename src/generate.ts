@@ -108,11 +108,11 @@ export function patchDockerWorkflow(
   let result = content
   result = result.replaceAll(
     'tomacheese/twitter-dm-memo',
-    `${org.toLowerCase()}/${repo.toLowerCase()}`
+    () => `${org.toLowerCase()}/${repo.toLowerCase()}`
   )
   result = result.replaceAll(
     'packageName: "twitter-dm-memo"',
-    `packageName: "${repo}"`
+    () => `packageName: "${repo}"`
   )
   return result
 }

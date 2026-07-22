@@ -309,7 +309,7 @@ export async function confirmOverwrite(outDir: string): Promise<void> {
   const confirmed = await confirm({
     message: `${outDir} に既存のファイルがあります。上書きしますか？`,
   })
-  if (isCancel(confirmed) || !confirmed) {
+  if (!confirmed || isCancel(confirmed)) {
     cancel('セットアップを中断しました')
     // eslint-disable-next-line unicorn/no-process-exit
     process.exit(0)
