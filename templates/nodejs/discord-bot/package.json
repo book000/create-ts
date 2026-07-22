@@ -23,7 +23,7 @@
     "discord.js": "14.27.0"
   },
   "devDependencies": {
-    "@book000/eslint-config": "1.15.4",
+    "@book000/eslint-config": "1.16.14",
     "@types/jest": "30.0.0",
     "@types/node": "25.9.5",
     "eslint": "10.7.0",
