@@ -242,8 +242,8 @@ async function main(): Promise<void> {
       if (!licenseRes.ok) throw new Error(`HTTP ${licenseRes.status}`)
       const licenseJson = (await licenseRes.json()) as { body: string }
       const licenseText = licenseJson.body
-        .replaceAll('[year]', String(new Date().getFullYear()))
-        .replaceAll('[fullname]', options.author)
+        .replaceAll('[year]', () => String(new Date().getFullYear()))
+        .replaceAll('[fullname]', () => options.author)
       writeFileSync(path.join(outDir, 'LICENSE'), licenseText, 'utf8')
       s.stop('LICENSE を生成しました')
     } catch {
