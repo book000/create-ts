@@ -10,4 +10,4 @@ minimumReleaseAgeExclude:
 # type leak (no issue filed upstream as of 2026-07-22; see
 # https://github.com/sxzz/rolldown-plugin-dts).
 overrides:
-  rolldown-plugin-dts: '0.27.9'
+  rolldown-plugin-dts: '0.27.12'
