@@ -2,5 +2,12 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "github>book000/templates//renovate/base-public"
+  ],
+  "packageRules": [
+    {
+      "matchPackageNames": ["rolldown-plugin-dts"],
+      "enabled": false,
+      "description": "rolldown-plugin-dts is pinned in pnpm-workspace.yaml's overrides (see the comment there) because 0.27.10+ ships a .d.mts that unconditionally references the optional @volar/typescript peer dependency, which breaks tsc (TS2307) here since we have no skipLibCheck. Still present as of 0.28.0. Re-enable once upstream fixes the type leak (https://github.com/sxzz/rolldown-plugin-dts)."
+    }
   ]
 }
