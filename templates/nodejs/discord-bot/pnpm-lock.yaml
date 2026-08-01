@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@book000/node-utils':
-        specifier: 1.25.13
-        version: 1.25.13(@opentelemetry/core@2.10.0(@opentelemetry/api@1.9.1))(supports-color@8.1.1)
+        specifier: 1.25.18
+        version: 1.25.18(@opentelemetry/core@2.10.0(@opentelemetry/api@1.9.1))(supports-color@8.1.1)
       discord.js:
         specifier: 14.27.0
         version: 14.27.0
@@ -232,8 +232,8 @@ packages:
     peerDependencies:
       eslint: 10.8.0
 
-  '@book000/node-utils@1.25.13':
-    resolution: {integrity: sha512-Er5p/oeTaV2YHhc4vT5yRL0Q5F8f65+hJnkHnxUiiRoBL2Z8lTt/pzbd1ccbbsERaY9bCM5iOIZTlrTU1zm6lw==}
+  '@book000/node-utils@1.25.18':
+    resolution: {integrity: sha512-dVQ09sZG2jwFh0Y1k2DSH7buGc1EQOcMcqyqG1y4lMMeCAkkfxyYellPP68/dMMrCA3jLsr7zUP//6W6/MrigA==}
 
   '@colors/colors@1.6.0':
     resolution: {integrity: sha512-Ir+AOibqzrIsL6ajt3Rz3LskB7OiMVHqltZmspbW/TJuTVuyOMirVqAkjfY6JISiLHgyNqicAC8AyHHGzNd/dA==}
@@ -3270,7 +3270,7 @@ snapshots:
       - supports-color
       - typescript
 
-  '@book000/node-utils@1.25.13(@opentelemetry/core@2.10.0(@opentelemetry/api@1.9.1))(supports-color@8.1.1)':
+  '@book000/node-utils@1.25.18(@opentelemetry/core@2.10.0(@opentelemetry/api@1.9.1))(supports-color@8.1.1)':
     dependencies:
       '@sentry/node': 10.68.0(@opentelemetry/core@2.10.0(@opentelemetry/api@1.9.1))(supports-color@8.1.1)
       cycle: 1.0.3
