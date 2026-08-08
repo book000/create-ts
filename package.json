@@ -19,7 +19,7 @@
     "templates"
   ],
   "engines": {
-    "node": "26.6.0"
+    "node": "26.7.0"
   },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
