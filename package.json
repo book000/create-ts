@@ -43,7 +43,7 @@
     "execa": "10.0.1"
   },
   "devDependencies": {
-    "@book000/eslint-config": "1.16.41",
+    "@book000/eslint-config": "1.16.42",
     "@types/node": "25.9.5",
     "eslint": "10.9.0",
     "prettier": "3.9.6",
