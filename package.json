@@ -9,7 +9,7 @@
   "license": "MIT",
   "author": "book000",
   "type": "module",
-  "packageManager": "pnpm@12.3.3",
+  "packageManager": "pnpm@12.3.4",
   "bin": {
     "create-ts": "dist/index.mjs"
   },
