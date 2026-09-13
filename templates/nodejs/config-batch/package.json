@@ -22,7 +22,7 @@
     "@book000/node-utils": "1.25.101"
   },
   "devDependencies": {
-    "@book000/eslint-config": "1.16.63",
+    "@book000/eslint-config": "1.16.64",
     "@types/jest": "30.0.0",
     "@types/node": "25.9.6",
     "eslint": "10.10.0",
