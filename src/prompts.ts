@@ -60,13 +60,15 @@ function validateCliFlags(flags: CliFlags): void {
     }
   }
 
-  if (flags.variant !== undefined && !VALID_VARIANTS.includes(flags.variant)) {
-    log.error(
-      `Invalid --variant: "${flags.variant}". Must be one of: ${VALID_VARIANTS.join(', ')}`
-    )
-    // eslint-disable-next-line unicorn/no-process-exit
-    process.exit(1)
+  if (flags.variant === undefined || VALID_VARIANTS.includes(flags.variant)) {
+    return
   }
+
+  log.error(
+    `Invalid --variant: "${flags.variant}". Must be one of: ${VALID_VARIANTS.join(', ')}`
+  )
+  // eslint-disable-next-line unicorn/no-process-exit
+  process.exit(1)
 }
 
 /** CLI フラグから渡される部分的なオプション */
@@ -309,9 +311,11 @@ export async function confirmOverwrite(outDir: string): Promise<void> {
   const confirmed = await confirm({
     message: `${outDir} に既存のファイルがあります。上書きしますか？`,
   })
-  if (!confirmed || isCancel(confirmed)) {
-    cancel('セットアップを中断しました')
-    // eslint-disable-next-line unicorn/no-process-exit
-    process.exit(0)
+  if (confirmed && !isCancel(confirmed)) {
+    return
   }
+
+  cancel('セットアップを中断しました')
+  // eslint-disable-next-line unicorn/no-process-exit
+  process.exit(0)
 }
