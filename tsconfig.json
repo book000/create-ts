@@ -12,7 +12,8 @@
     "noFallthroughCasesInSwitch": true,
     "declaration": true,
     "outDir": "dist",
-    "rootDir": "."
+    "rootDir": ".",
+    "skipLibCheck": true
   },
   "include": ["src", "test", "tsdown.config.ts", "typings", "vitest.config.ts"],
   "exclude": ["node_modules", "dist"]
