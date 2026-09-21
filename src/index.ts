@@ -111,10 +111,9 @@ async function main(): Promise<void> {
   /** CLI で明示的に指定されたかどうか確認して boolean | undefined を返す */
   const getCLIBoolFlag = (name: string): boolean | undefined => {
     const source = program.getOptionValueSource(name)
-    if (source === 'cli' || source === 'env') {
-      return opts[name] as boolean
-    }
-    return undefined
+    return source === 'cli' || source === 'env'
+      ? (opts[name] as boolean)
+      : undefined
   }
 
   intro('create-ts')
@@ -180,11 +179,8 @@ async function main(): Promise<void> {
       '.fixpackrc',
       'pnpm-workspace.yaml',
       '.devcontainer/devcontainer.json',
+      ...(options.docker ? ['Dockerfile', 'entrypoint.sh'] : []),
     ]
-
-    if (options.docker) {
-      commonFiles.push('Dockerfile', 'entrypoint.sh')
-    }
 
     s.start('共通ファイルをコピーしています...')
     for (const file of commonFiles) {
@@ -194,10 +190,10 @@ async function main(): Promise<void> {
     s.stop(`共通ファイルをコピーしました (${commonFiles.length} ファイル)`)
 
     // ステップ 4: バリアント src ファイルのコピー
-    const filesToCopy = [...templateConfig.src]
-    if (options.test && templateConfig.testSrc) {
-      filesToCopy.push(...templateConfig.testSrc)
-    }
+    const filesToCopy = [
+      ...templateConfig.src,
+      ...(options.test && templateConfig.testSrc ? templateConfig.testSrc : []),
+    ]
 
     s.start('src ファイルをコピーしています...')
     for (const srcFile of filesToCopy) {
