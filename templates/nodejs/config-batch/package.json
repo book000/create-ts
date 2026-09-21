@@ -19,7 +19,7 @@
     "generate-schema": "typescript-json-schema --required src/config.ts ConfigInterface -o schema/Configuration.json"
   },
   "dependencies": {
-    "@book000/node-utils": "1.25.110"
+    "@book000/node-utils": "1.25.115"
   },
   "devDependencies": {
     "@book000/eslint-config": "1.16.67",
@@ -27,7 +27,7 @@
     "@types/node": "25.9.7",
     "eslint": "10.10.0",
     "jest": "30.5.1",
-    "prettier": "3.9.7",
+    "prettier": "3.9.8",
     "run-z": "2.1.0",
     "ts-jest": "29.4.12",
     "tsx": "4.23.13",
