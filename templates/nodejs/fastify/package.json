@@ -22,7 +22,7 @@
     "fastify": "5.12.5"
   },
   "devDependencies": {
-    "@book000/eslint-config": "1.16.72",
+    "@book000/eslint-config": "1.16.73",
     "@types/jest": "30.0.0",
     "@types/node": "25.9.8",
     "eslint": "10.11.0",
