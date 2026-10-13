@@ -26,7 +26,7 @@
     "@types/jest": "30.0.0",
     "@types/node": "25.9.9",
     "eslint": "10.12.0",
-    "fastify-raw-body": "6.0.1",
+    "fastify-raw-body": "6.0.2",
     "jest": "30.5.2",
     "prettier": "3.9.9",
     "run-z": "2.1.0",
