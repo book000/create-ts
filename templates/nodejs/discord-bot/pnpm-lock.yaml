@@ -12,8 +12,8 @@ importers:
         specifier: 1.26.4
         version: 1.26.4
       discord.js:
-        specifier: 14.28.0
-        version: 14.28.0
+        specifier: 14.28.1
+        version: 14.28.1
     devDependencies:
       '@book000/eslint-config':
         specifier: 1.16.116
@@ -1429,10 +1429,9 @@ packages:
   discord-api-types@0.38.57:
     resolution: {integrity: sha512-R1CTSSt4RshqCq23j2Xq2ZscvzB4LzG9OB1CYQdKUGdw8Ti/oF/72EEtK2mNpagG/Vj9NcBT7dw9lKLf+Dacfg==}
 
-  discord.js@14.28.0:
-    resolution: {integrity: sha512-l/mIllvqvWQDWqa8NPw7b2AU2tM9oPWiWR6Jk54DTNlUdyArXbi+Y0m0sLIUtQ9O0x+tyVpDMCG6K6Kf0yeAWQ==}
+  discord.js@14.28.1:
+    resolution: {integrity: sha512-Je5OcqgurnIUQK4vR+gQnmzOf/lNQsD6d/UkV8ZOj+bFa5zJXPyiGXlbywp2EagwshVT18y7YNQNSRd3FjYkDw==}
     engines: {node: '>=18'}
-    deprecated: Please upgrade to 14.28.1 or newer as those versions solve a potential security issue related to the new permission fields on channels
 
   dotenv@17.4.2:
     resolution: {integrity: sha512-nI4U3TottKAcAD9LLud4Cb7b2QztQMUEfHbvhTH09bqXTxnSie8WnjPALV/WMCrJZ6UV/qHJ6L03OqO3LcdYZw==}
@@ -4104,7 +4103,7 @@ snapshots:
 
   discord-api-types@0.38.57: {}
 
-  discord.js@14.28.0:
+  discord.js@14.28.1:
     dependencies:
       '@discordjs/builders': 1.15.0
       '@discordjs/collection': 1.5.3
