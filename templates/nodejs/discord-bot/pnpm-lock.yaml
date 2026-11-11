@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@book000/node-utils':
-        specifier: 1.26.10
-        version: 1.26.10
+        specifier: 1.26.11
+        version: 1.26.11
       discord.js:
         specifier: 14.28.1
         version: 14.28.1
@@ -221,8 +221,8 @@ packages:
     peerDependencies:
       eslint: 10.14.0
 
-  '@book000/node-utils@1.26.10':
-    resolution: {integrity: sha512-0IivH5CilLpiXKAZjGRXwlgq6z2bmxmueeSDc0UuHsVhN2cjONIi0BaGZ8SnnzZY/RKJRd1a/3VD8s7/eJVZlQ==}
+  '@book000/node-utils@1.26.11':
+    resolution: {integrity: sha512-amWZSbxFukgyRmSPqMfmlm0xJACczakOpqdDtSiD6JnKtxo2w+Bx3zRzVSnO7MqBjrJ1tCNiHVw+507mWrQhSA==}
 
   '@cacheable/memory@2.2.0':
     resolution: {integrity: sha512-CTLKqLItRCEixEAewD3/j9DB3/o96gpTPD4eJ1v+DGOlxZRZncRQkGYqqnAGCscYd6RNeXfGeiuCphsPtqyIfQ==}
@@ -2974,7 +2974,7 @@ snapshots:
       - ts-declaration-location
       - typescript
 
-  '@book000/node-utils@1.26.10':
+  '@book000/node-utils@1.26.11':
     dependencies:
       '@sentry/node': 11.11.0
       cycle: 1.0.3
