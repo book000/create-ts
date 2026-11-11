@@ -7,5 +7,5 @@ export default defineConfig({
   clean: true,
 })
 
-// 注意: src/index.ts の先頭行に `#!/usr/bin/env node` を記載すること。
-// tsdown がシェバンを検出し、出力ファイルへの保持と chmod +x を自動で行う（banner オプション不要）。
+// Keep `#!/usr/bin/env node` as the first line of src/index.ts.
+// tsdown detects the shebang, preserves it in the output and runs chmod +x (no banner option needed).

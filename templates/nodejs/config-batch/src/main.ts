@@ -2,22 +2,22 @@ import { ConfigFramework } from '@book000/node-utils'
 import { ConfigInterface } from './config'
 
 /**
- * 設定フレームワーク実装
+ * Configuration framework implementation.
  */
 class Configuration extends ConfigFramework<ConfigInterface> {
   /**
-   * バリデーションルールを返す
+   * Returns the validation rules.
    */
   protected validates(): Record<string, (config: ConfigInterface) => boolean> {
     return {
-      // TODO: バリデーションルールを追加する
-      // 例: 'someKey is required': (config) => config.someKey !== undefined,
+      // TODO: add validation rules
+      // e.g. 'someKey is required': (config) => config.someKey !== undefined,
     }
   }
 }
 
 /**
- * エントリポイント
+ * Entry point.
  */
 // eslint-disable-next-line @typescript-eslint/require-await
 async function main(): Promise<void> {
@@ -28,7 +28,7 @@ async function main(): Promise<void> {
       `Configuration validation failed: ${config.getValidateFailures().join(', ')}`
     )
   }
-  // TODO: config.get('key') でアクセスして処理を実装する
+  // TODO: read settings with config.get('key') and implement the batch logic
 }
 
 main().catch((error: unknown) => {

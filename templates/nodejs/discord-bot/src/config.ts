@@ -1,8 +1,8 @@
 /**
- * 設定インターフェース
+ * Configuration interface.
  */
 export interface ConfigInterface {
-  /** Discord Bot のトークン */
+  /** Discord bot token. */
   token: string
-  // TODO: 設定項目を追加する
+  // TODO: add configuration items
 }

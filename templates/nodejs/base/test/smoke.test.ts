@@ -1,12 +1,12 @@
 /**
- * base バリアントのスモークテスト
+ * Smoke tests for the base variant.
  *
- * TypeScript の基本機能と Node.js 組み込みモジュールの動作を確認する。
- * 外部サービスへの接続は行わない。
+ * Checks basic TypeScript features and Node.js built-in behavior.
+ * Does not connect to external services.
  */
 
-describe('TypeScript 基本機能', () => {
-  it('async/await が動作する', async () => {
+describe('TypeScript basics', () => {
+  it('async/await works', async () => {
     const delay = (ms: number): Promise<string> =>
       new Promise((resolve) => setTimeout(() => resolve('ok'), ms))
 
@@ -14,7 +14,7 @@ describe('TypeScript 基本機能', () => {
     expect(result).toBe('ok')
   })
 
-  it('ジェネリクスが動作する', () => {
+  it('generics work', () => {
     function identity<T>(value: T): T {
       return value
     }
@@ -22,7 +22,7 @@ describe('TypeScript 基本機能', () => {
     expect(identity('hello')).toBe('hello')
   })
 
-  it('Error のスローと catch が動作する', async () => {
+  it('throwing and catching an Error works', async () => {
     const failingFn = async (): Promise<never> => {
       throw new Error('test error')
     }

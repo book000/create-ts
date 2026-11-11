@@ -1,8 +1,8 @@
 /**
- * discord-bot バリアントのテスト
+ * Tests for the discord-bot variant.
  *
- * discord.js の Client が正しく初期化できること、および Discord クラスの
- * 基本動作を確認する。実際のトークンでのログインは行わない。
+ * Checks that the discord.js Client can be initialized and the basic behavior of the Discord class.
+ * Does not log in with a real token.
  */
 
 import { Client, GatewayIntentBits } from 'discord.js'
@@ -10,7 +10,7 @@ import { Discord } from '../src/discord'
 import type { ConfigFramework } from '@book000/node-utils'
 import type { ConfigInterface } from '../src/config'
 
-/** テスト用 ConfigFramework モック */
+/** Mock ConfigFramework for tests. */
 const createMockConfig = (): ConfigFramework<ConfigInterface> =>
   ({
     get: jest.fn(),
@@ -19,7 +19,7 @@ const createMockConfig = (): ConfigFramework<ConfigInterface> =>
     getValidateFailures: jest.fn().mockReturnValue([]),
   }) as unknown as ConfigFramework<ConfigInterface>
 
-describe('Discord クラス', () => {
+describe('Discord class', () => {
   let client: Client
 
   beforeEach(() => {
@@ -30,13 +30,13 @@ describe('Discord クラス', () => {
     client.destroy()
   })
 
-  it('Discord インスタンスを作成できる', () => {
+  it('can create a Discord instance', () => {
     const mockConfig = createMockConfig()
     const discord = new Discord(client, mockConfig)
     expect(discord).toBeDefined()
   })
 
-  it('onReady() を呼び出せる', () => {
+  it('can call onReady()', () => {
     const mockConfig = createMockConfig()
     const discord = new Discord(client, mockConfig)
     const consoleSpy = jest.spyOn(console, 'log').mockImplementation()
@@ -48,13 +48,13 @@ describe('Discord クラス', () => {
 })
 
 describe('discord.js Client', () => {
-  it('Client インスタンスを作成できる', () => {
+  it('can create a Client instance', () => {
     const testClient = new Client({ intents: [GatewayIntentBits.Guilds] })
     expect(testClient).toBeDefined()
     testClient.destroy()
   })
 
-  it('複数の Intent を設定できる', () => {
+  it('can set multiple intents', () => {
     const testClient = new Client({
       intents: [
         GatewayIntentBits.Guilds,

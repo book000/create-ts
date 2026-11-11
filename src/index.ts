@@ -21,7 +21,7 @@ const { version } = JSON.parse(
   readFileSync(path.join(__dirname, '../package.json'), 'utf8')
 ) as { version: string }
 
-/** ファイルを書き込む。親ディレクトリが存在しない場合は作成する。 */
+/** Writes a file, creating the parent directory if it does not exist. */
 function writeFile(filePath: string, content: string): void {
   const dir = path.dirname(filePath)
   if (!existsSync(dir)) {
@@ -30,7 +30,10 @@ function writeFile(filePath: string, content: string): void {
   writeFileSync(filePath, content, 'utf8')
 }
 
-/** node / pnpm の存在と Node.js バージョンを確認する。メジャーバージョンを返す。 */
+/**
+ * Checks that node and pnpm are available and that Node.js is v20 or later.
+ * Exits the process on failure; otherwise returns the Node.js major version.
+ */
 async function checkPrerequisites(): Promise<number> {
   let nodeMajor: number
 
@@ -108,7 +111,7 @@ async function main(): Promise<void> {
   const outDir = path.resolve(outDirArg)
   const opts = program.opts()
 
-  /** CLI で明示的に指定されたかどうか確認して boolean | undefined を返す */
+  /** Returns the flag value only if it was given explicitly (CLI or env); otherwise undefined so the prompt is shown. */
   const getCLIBoolFlag = (name: string): boolean | undefined => {
     const source = program.getOptionValueSource(name)
     return source === 'cli' || source === 'env'
@@ -118,13 +121,11 @@ async function main(): Promise<void> {
 
   intro('create-ts')
 
-  // ステップ 1: 前提チェック
   const s = spinner()
   s.start('前提条件を確認しています...')
   const nodeMajor = await checkPrerequisites()
   s.stop('前提条件を確認しました')
 
-  // 対話プロンプトでオプション収集
   const options = await collectOptions(outDir, {
     name: opts.name as string | undefined,
     org: opts.org as string | undefined,
@@ -143,7 +144,7 @@ async function main(): Promise<void> {
     overwrite: opts.overwrite as boolean | undefined,
   })
 
-  // 既存ファイルの確認
+  // Ask before overwriting an existing project
   if (!options.overwrite) {
     const hasExisting =
       existsSync(path.join(outDir, 'package.json')) ||
@@ -155,21 +156,17 @@ async function main(): Promise<void> {
     }
   }
 
-  // サマリー表示
   displaySummary(options)
 
-  // 出力ディレクトリを作成
   if (!existsSync(outDir)) {
     mkdirSync(outDir, { recursive: true })
   }
 
   try {
-    // ステップ 2: template.json の読み込み
     s.start('テンプレート設定を読み込んでいます...')
     const templateConfig = fetchTemplateConfig(options.variant)
     s.stop('テンプレート設定を読み込みました')
 
-    // ステップ 3: 共通テンプレートファイルのコピー
     const commonFiles = [
       'tsconfig.json',
       '.prettierrc.yml',
@@ -189,7 +186,7 @@ async function main(): Promise<void> {
     }
     s.stop(`共通ファイルをコピーしました (${commonFiles.length} ファイル)`)
 
-    // ステップ 4: バリアント src ファイルのコピー
+    // copy the variant's src files (and test files with --test)
     const filesToCopy = [
       ...templateConfig.src,
       ...(options.test && templateConfig.testSrc ? templateConfig.testSrc : []),
@@ -202,7 +199,6 @@ async function main(): Promise<void> {
     }
     s.stop(`src ファイルをコピーしました (${filesToCopy.length} ファイル)`)
 
-    // ステップ 5: tsconfig.json のパッチ
     const tsconfigPath = path.join(outDir, 'tsconfig.json')
     const tsconfig = JSON.parse(readFileSync(tsconfigPath, 'utf8')) as Record<
       string,
@@ -215,7 +211,7 @@ async function main(): Promise<void> {
       'utf8'
     )
 
-    // ステップ 6: .gitignore / .node-version の生成
+    // generate .gitignore and .node-version (the running Node.js version)
     s.start('.gitignore を生成しています...')
     const gitignoreContent = generateGitignore(options.ignoreData)
     writeFileSync(path.join(outDir, '.gitignore'), gitignoreContent, 'utf8')
@@ -229,7 +225,7 @@ async function main(): Promise<void> {
     )
     s.stop('.gitignore と .node-version を生成しました')
 
-    // ステップ 7: LICENSE の生成
+    // generate LICENSE from the GitHub licenses API (failure is non-fatal)
     s.start('LICENSE を生成しています...')
     try {
       const licenseRes = await fetch(
@@ -249,7 +245,6 @@ async function main(): Promise<void> {
       )
     }
 
-    // ステップ 8: ワークフローファイルのコピー
     s.start('ワークフローファイルをコピーしています...')
     const workflowDir = path.join(outDir, '.github', 'workflows')
     mkdirSync(workflowDir, { recursive: true })
@@ -288,19 +283,15 @@ async function main(): Promise<void> {
 
     s.stop('ワークフローファイルをコピーしました')
 
-    // ステップ 9: package.json の生成
     s.start('package.json を生成しています...')
 
-    // 9-1: バリアントの package.json を読み込み
     const variantPkgText = readTemplate(
       `nodejs/${options.variant}/package.json`
     )
     const variantPkgJson = JSON.parse(variantPkgText) as Record<string, unknown>
 
-    // 9-2〜9-4: プロジェクト固有の値を適用
     const patchedPkgJson = patchPackageJson(variantPkgJson, options, nodeMajor)
 
-    // 9-5: .depcheckrc.json の更新
     const depcheckIgnore = templateConfig.depcheckIgnore ?? []
     if (depcheckIgnore.length > 0 || options.test) {
       const depcheckPath = path.join(outDir, '.depcheckrc.json')
@@ -319,12 +310,11 @@ async function main(): Promise<void> {
       )
     }
 
-    // 9-6: schema/ ディレクトリの作成
+    // create schema/ (output directory of generate-schema)
     if (templateConfig.configSchema) {
       mkdirSync(path.join(outDir, 'schema'), { recursive: true })
     }
 
-    // 9-7: package.json の保存
     writeFileSync(
       path.join(outDir, 'package.json'),
       JSON.stringify(patchedPkgJson, null, 2) + '\n',
@@ -332,13 +322,12 @@ async function main(): Promise<void> {
     )
     s.stop('package.json を生成しました')
 
-    // ステップ 10: pnpm-lock.yaml のコピー
+    // copy the variant's pnpm-lock.yaml (used by --frozen-lockfile)
     s.start('pnpm-lock.yaml をコピーしています...')
     const pnpmLock = readTemplate(`nodejs/${options.variant}/pnpm-lock.yaml`)
     writeFileSync(path.join(outDir, 'pnpm-lock.yaml'), pnpmLock, 'utf8')
     s.stop('pnpm-lock.yaml をコピーしました')
 
-    // ステップ 11: pnpm install
     s.start('pnpm install を実行しています...')
     await execa('pnpm', ['install', '--frozen-lockfile'], {
       cwd: outDir,
@@ -346,7 +335,7 @@ async function main(): Promise<void> {
     })
     s.stop('依存パッケージをインストールしました')
 
-    // ステップ 12: jest 関連の除去（テストなし時）
+    // the variant lockfile includes jest, so remove it without --test
     if (!options.test) {
       s.start('Jest 関連パッケージを削除しています...')
       await execa('pnpm', ['remove', 'jest', '@types/jest', 'ts-jest'], {
@@ -355,7 +344,7 @@ async function main(): Promise<void> {
       s.stop('Jest 関連パッケージを削除しました')
     }
 
-    // ステップ 13: fixpack / fixdevcontainer
+    // fixpack / fixdevcontainer (failures are non-fatal)
     s.start('fixpack を実行しています...')
     try {
       await execa('npx', ['--yes', 'fixpack'], { cwd: outDir })
@@ -371,7 +360,6 @@ async function main(): Promise<void> {
       log.warn('fixdevcontainer をスキップしました（失敗）')
     }
 
-    // ステップ 14: 完了メッセージ
     const completionLines = [
       '=== セットアップ完了！ ===',
       '',

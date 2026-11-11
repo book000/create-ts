@@ -2,8 +2,10 @@ import type { ProjectOptions } from './types.js'
 import { readTemplate } from './template.js'
 
 /**
- * バリアントの package.json にプロジェクト固有の値を適用する。
- * テンプレートのプレースホルダーを実際の値で上書きする。
+ * Applies project-specific values to a variant's package.json and returns a new object.
+ * Sets name (`@<org lowercased>/<name>`), description, license, author, engines.node (`>=<nodeMajor>`), repository and bugs URLs, and homepage if non-empty.
+ * With `esm`, sets `type: "module"` (plus the ts-jest ESM config when `test` is also set).
+ * Without `test`, removes the `test` script and the `jest` field.
  */
 export function patchPackageJson(
   packageJson: Record<string, unknown>,
@@ -71,7 +73,8 @@ export function patchPackageJson(
 }
 
 /**
- * tsconfig.json にモジュール形式・テスト設定のパッチを適用する。
+ * Patches tsconfig.json and returns a new object.
+ * With `esm`, sets `compilerOptions.module` to `es2015`; with `test`, adds `jest` to `compilerOptions.types`.
  */
 export function patchTsConfig(
   tsconfig: Record<string, unknown>,
@@ -98,7 +101,8 @@ export function patchTsConfig(
 }
 
 /**
- * docker.yml のプレースホルダーをプロジェクト固有の値に置換する。
+ * Replaces the placeholders of the bundled docker.yml template.
+ * The image name `tomacheese/twitter-dm-memo` becomes `<org>/<repo>` lowercased, and `packageName` becomes `repo` as given.
  */
 export function patchDockerWorkflow(
   content: string,
@@ -118,9 +122,7 @@ export function patchDockerWorkflow(
 }
 
 /**
- * .gitignore を生成する。
- * バンドルされた Node.gitignore（pnpm セクション付き）をベースに、
- * 任意で data/ セクションを追記する。
+ * Generates .gitignore from the bundled Node.gitignore (which includes a pnpm section), optionally appending a `data/` section.
  */
 export function generateGitignore(ignoreData: boolean): string {
   let result = readTemplate('gitignore/Node.gitignore')
@@ -133,8 +135,8 @@ export function generateGitignore(ignoreData: boolean): string {
 }
 
 /**
- * .depcheckrc.json の ignores 配列を更新する。
- * テンプレートの depcheckIgnore と Jest 関連パッケージを追加する（重複除去）。
+ * Updates the `ignores` array of .depcheckrc.json without duplicates.
+ * Adds the variant's depcheckIgnore entries, plus `@types/jest` when `test` is set.
  */
 export function updateDepcheck(
   depcheckJson: Record<string, unknown>,

@@ -7,89 +7,89 @@ import {
 } from '../src/validate.js'
 
 describe('validateProjectName', () => {
-  it('my-app → 有効', () => {
+  it('my-app → valid', () => {
     expect(validateProjectName('my-app')).toBeUndefined()
   })
 
-  it('MyApp → 無効（大文字）', () => {
+  it('MyApp → invalid (uppercase)', () => {
     expect(validateProjectName('MyApp')).toBeDefined()
   })
 
-  it('-bad-start → 無効（ハイフン始まり）', () => {
+  it('-bad-start → invalid (starts with a hyphen)', () => {
     expect(validateProjectName('-bad-start')).toBeDefined()
   })
 
-  it('"has space" → 無効（空白）', () => {
+  it('"has space" → invalid (whitespace)', () => {
     expect(validateProjectName('has space')).toBeDefined()
   })
 
-  it(`${'a'.repeat(215)} → 無効（215 文字）`, () => {
+  it(`${'a'.repeat(215)} → invalid (215 characters)`, () => {
     expect(validateProjectName('a'.repeat(215))).toBeDefined()
   })
 
-  it(`${'a'.repeat(214)} → 有効（214 文字）`, () => {
+  it(`${'a'.repeat(214)} → valid (214 characters)`, () => {
     expect(validateProjectName('a'.repeat(214))).toBeUndefined()
   })
 
-  it('空文字 → 無効（必須）', () => {
+  it('empty string → invalid (required)', () => {
     expect(validateProjectName('')).toBeDefined()
   })
 
-  it('undefined → 無効（必須）', () => {
+  it('undefined → invalid (required)', () => {
     expect(validateProjectName(undefined)).toBeDefined()
   })
 })
 
 describe('validateOrgName', () => {
-  it('book000 → 有効', () => {
+  it('book000 → valid', () => {
     expect(validateOrgName('book000')).toBeUndefined()
   })
 
-  it('Book.000 → 有効（大文字・ドット許容）', () => {
+  it('Book.000 → valid (uppercase and dots allowed)', () => {
     expect(validateOrgName('Book.000')).toBeUndefined()
   })
 
-  it('"bad org!" → 無効（空白・記号）', () => {
+  it('"bad org!" → invalid (whitespace and symbols)', () => {
     expect(validateOrgName('bad org!')).toBeDefined()
   })
 
-  it('空文字 → 無効（必須）', () => {
+  it('empty string → invalid (required)', () => {
     expect(validateOrgName('')).toBeDefined()
   })
 })
 
 describe('validateRepoName', () => {
-  it('my-repo → 有効', () => {
+  it('my-repo → valid', () => {
     expect(validateRepoName('my-repo')).toBeUndefined()
   })
 
-  it('_private → 有効（アンダースコア始まり）', () => {
+  it('_private → valid (leading underscore)', () => {
     expect(validateRepoName('_private')).toBeUndefined()
   })
 
-  it('-bad → 無効（ハイフン始まり）', () => {
+  it('-bad → invalid (starts with a hyphen)', () => {
     expect(validateRepoName('-bad')).toBeDefined()
   })
 
-  it('空文字 → 無効（必須）', () => {
+  it('empty string → invalid (required)', () => {
     expect(validateRepoName('')).toBeDefined()
   })
 })
 
 describe('validateLicense', () => {
-  it('MIT → 有効', () => {
+  it('MIT → valid', () => {
     expect(validateLicense('MIT')).toBeUndefined()
   })
 
-  it('Apache-2.0 → 有効', () => {
+  it('Apache-2.0 → valid', () => {
     expect(validateLicense('Apache-2.0')).toBeUndefined()
   })
 
-  it('"MIT License" → 無効（空白）', () => {
+  it('"MIT License" → invalid (whitespace)', () => {
     expect(validateLicense('MIT License')).toBeDefined()
   })
 
-  it('空文字 → 無効（必須）', () => {
+  it('empty string → invalid (required)', () => {
     expect(validateLicense('')).toBeDefined()
   })
 })

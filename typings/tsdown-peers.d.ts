@@ -1,7 +1,6 @@
 /**
- * tsdown のオプショナルピア依存関係のスタブ宣言。
- * tsdown の型定義がこれらのパッケージを参照するが、
- * 本プロジェクトでは使用しないため空宣言で対応する。
+ * Stub declarations for tsdown's optional peer dependencies.
+ * tsdown's type definitions reference these packages, but this project does not use them, so they are declared empty.
  */
 
 declare module '@vitejs/devtools/cli-commands' {
