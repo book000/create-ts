@@ -1,7 +1,7 @@
-/** サポートされているプロジェクトバリアント */
+/** Supported project variants. */
 export type Variant = 'base' | 'config-batch' | 'fastify' | 'discord-bot'
 
-/** プロジェクトセットアップの全オプション */
+/** All options for a project setup. */
 export interface ProjectOptions {
   name: string
   org: string
@@ -21,15 +21,15 @@ export interface ProjectOptions {
   outDir: string
 }
 
-/** バリアントの template.json スキーマ */
+/** Schema of a variant's template.json. */
 export interface TemplateConfig {
   configSchema: boolean
   dependencies?: string[]
   devDependencies?: string[]
   scripts?: Record<string, string>
   depcheckIgnore?: string[]
-  /** 常にコピーする src ファイルのリスト */
+  /** Files always copied (paths relative to the variant directory). */
   src: string[]
-  /** --test 有効時のみコピーするテストファイルのリスト */
+  /** Files copied only with --test. */
   testSrc?: string[]
 }

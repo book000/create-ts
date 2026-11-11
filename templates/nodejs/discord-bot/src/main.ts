@@ -4,24 +4,24 @@ import { ConfigInterface } from './config'
 import { Discord } from './discord'
 
 /**
- * 設定フレームワーク実装
+ * Configuration framework implementation.
  */
 class Configuration extends ConfigFramework<ConfigInterface> {
   /**
-   * バリデーションルールを返す
+   * Returns the validation rules.
    */
   protected validates(): Record<string, (config: ConfigInterface) => boolean> {
     return {
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       'token is required': (config) => config.token !== undefined,
       'token is string': (config) => typeof config.token === 'string',
-      // TODO: バリデーションルールを追加する
+      // TODO: add validation rules
     }
   }
 }
 
 /**
- * エントリポイント
+ * Entry point.
  */
 async function main(): Promise<void> {
   const config = new Configuration('./data/config.json')

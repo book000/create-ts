@@ -1,7 +1,7 @@
 /**
- * 設定インターフェース
+ * Configuration interface.
  */
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface ConfigInterface {
-  // TODO: 設定項目を追加する
+  // TODO: add configuration items
 }

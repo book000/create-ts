@@ -7,9 +7,9 @@ import {
   updateDepcheck,
 } from '../src/generate.js'
 
-// ---- テスト用フィクスチャ ----
+// ---- Test fixtures ----
 
-/** テンプレートの tsconfig.json に相当するベースオブジェクト */
+/** Base object equivalent to the template tsconfig.json. */
 const BASE_TSCONFIG = {
   compilerOptions: {
     target: 'es2020',
@@ -21,7 +21,7 @@ const BASE_TSCONFIG = {
   include: ['src/**/*'],
 }
 
-/** テンプレートの package.json に相当するベースオブジェクト */
+/** Base object equivalent to the template package.json. */
 const BASE_PACKAGE_JSON = {
   name: '@book000/template',
   version: '1.0.0',
@@ -63,12 +63,12 @@ describe('patchPackageJson', () => {
     test: false,
   }
 
-  it('org が大文字でも name が小文字化される', () => {
+  it('lowercases the org in name even if it is uppercase', () => {
     const result = patchPackageJson(BASE_PACKAGE_JSON, { ...baseOptions, org: 'Book000' }, 20)
     expect(result.name).toBe('@book000/my-app')
   })
 
-  it('--esm: type が "module" になる', () => {
+  it('--esm: type becomes "module"', () => {
     const result = patchPackageJson(
       BASE_PACKAGE_JSON,
       { ...baseOptions, esm: true, test: false },
@@ -77,7 +77,7 @@ describe('patchPackageJson', () => {
     expect(result.type).toBe('module')
   })
 
-  it('--esm --test: jest フィールドが ESM 用設定になる', () => {
+  it('--esm --test: the jest field gets the ESM config', () => {
     const result = patchPackageJson(
       BASE_PACKAGE_JSON,
       { ...baseOptions, esm: true, test: true },
@@ -91,13 +91,13 @@ describe('patchPackageJson', () => {
     ).toContain('.ts')
   })
 
-  it('--no-test: scripts.test と jest フィールドが削除される', () => {
+  it('--no-test: scripts.test and the jest field are removed', () => {
     const result = patchPackageJson(BASE_PACKAGE_JSON, { ...baseOptions, test: false }, 20)
     expect((result.scripts as Record<string, string>).test).toBeUndefined()
     expect(result.jest).toBeUndefined()
   })
 
-  it('--no-test --esm: jest フィールドが追加されない', () => {
+  it('--no-test --esm: the jest field is not added', () => {
     const result = patchPackageJson(
       BASE_PACKAGE_JSON,
       { ...baseOptions, esm: true, test: false },
@@ -106,12 +106,12 @@ describe('patchPackageJson', () => {
     expect(result.jest).toBeUndefined()
   })
 
-  it('homepage が空文字: homepage フィールドが追加されない', () => {
+  it('empty homepage: the homepage field is not added', () => {
     const result = patchPackageJson(BASE_PACKAGE_JSON, { ...baseOptions, homepage: '' }, 20)
     expect(result.homepage).toBeUndefined()
   })
 
-  it('homepage が指定済み: homepage フィールドが追加される', () => {
+  it('homepage given: the homepage field is added', () => {
     const result = patchPackageJson(
       BASE_PACKAGE_JSON,
       { ...baseOptions, homepage: 'https://example.com' },
@@ -124,28 +124,28 @@ describe('patchPackageJson', () => {
 // ---- patchTsConfig ----
 
 describe('patchTsConfig', () => {
-  it('CJS（デフォルト）: module が "commonjs" のまま', () => {
+  it('CJS (default): module stays "commonjs"', () => {
     const result = patchTsConfig(BASE_TSCONFIG, { esm: false, test: false })
     const opts = (result as typeof BASE_TSCONFIG).compilerOptions
     expect(opts.module).toBe('commonjs')
     expect(opts.moduleResolution).toBe('bundler')
   })
 
-  it('ESM: module が "es2015" になり moduleResolution は "bundler" のまま', () => {
+  it('ESM: module becomes "es2015" and moduleResolution stays "bundler"', () => {
     const result = patchTsConfig(BASE_TSCONFIG, { esm: true, test: false })
     const opts = (result as typeof BASE_TSCONFIG).compilerOptions
     expect(opts.module).toBe('es2015')
     expect(opts.moduleResolution).toBe('bundler')
   })
 
-  it('--test: types に "jest" が追加される', () => {
+  it('--test: "jest" is added to types', () => {
     const result = patchTsConfig(BASE_TSCONFIG, { esm: false, test: true })
     const types = (result as typeof BASE_TSCONFIG).compilerOptions.types
     expect(types).toContain('node')
     expect(types).toContain('jest')
   })
 
-  it('--no-test: types が ["node"] のまま', () => {
+  it('--no-test: types stays ["node"]', () => {
     const result = patchTsConfig(BASE_TSCONFIG, { esm: false, test: false })
     const types = (result as typeof BASE_TSCONFIG).compilerOptions.types
     expect(types).toEqual(['node'])
@@ -162,19 +162,19 @@ describe('patchDockerWorkflow', () => {
     ]
 `.trim()
 
-  it('imageName が正しく置換される', () => {
+  it('replaces imageName', () => {
     const result = patchDockerWorkflow(DOCKER_YML, 'book000', 'my-app')
     expect(result).toContain('book000/my-app')
     expect(result).not.toContain('tomacheese/twitter-dm-memo')
   })
 
-  it('org が大文字でも GHCR パスが小文字化される', () => {
+  it('lowercases the GHCR path even if org is uppercase', () => {
     const result = patchDockerWorkflow(DOCKER_YML, 'Book000', 'my-app')
     expect(result).toContain('book000/my-app')
     expect(result).not.toContain('Book000')
   })
 
-  it('packageName が正しく置換される', () => {
+  it('replaces packageName', () => {
     const result = patchDockerWorkflow(DOCKER_YML, 'book000', 'my-app')
     expect(result).toContain('packageName: "my-app"')
     expect(result).not.toContain('packageName: "twitter-dm-memo"')
@@ -184,7 +184,7 @@ describe('patchDockerWorkflow', () => {
 // ---- generateGitignore ----
 
 describe('generateGitignore', () => {
-  it('基本: pnpm セクションが含まれる', () => {
+  it('basic: includes the pnpm section', () => {
     const result = generateGitignore(false)
     expect(result).toContain('node_modules/')
     expect(result).toContain('# pnpm')
@@ -192,7 +192,7 @@ describe('generateGitignore', () => {
     expect(result).not.toContain('data/')
   })
 
-  it('--ignore-data: さらに data/ セクションが追記される', () => {
+  it('--ignore-data: additionally appends the data/ section', () => {
     const result = generateGitignore(true)
     expect(result).toContain('# pnpm')
     expect(result).toContain('# データディレクトリ')
@@ -207,7 +207,7 @@ describe('updateDepcheck', () => {
     ignores: ['@types/node', 'run-z'],
   }
 
-  it('depcheckIgnore のパッケージが ignores に追加される', () => {
+  it('adds the depcheckIgnore packages to ignores', () => {
     const result = updateDepcheck(
       BASE_DEPCHECK,
       ['typescript-json-schema'],
@@ -218,12 +218,12 @@ describe('updateDepcheck', () => {
     )
   })
 
-  it('--test: @types/jest が ignores に追加される', () => {
+  it('--test: adds @types/jest to ignores', () => {
     const result = updateDepcheck(BASE_DEPCHECK, [], true)
     expect((result as typeof BASE_DEPCHECK).ignores).toContain('@types/jest')
   })
 
-  it('同一パッケージを 2 回渡しても重複しない', () => {
+  it('does not duplicate a package passed twice', () => {
     const result = updateDepcheck(
       BASE_DEPCHECK,
       ['typescript-json-schema', 'typescript-json-schema'],

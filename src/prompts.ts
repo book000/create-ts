@@ -17,11 +17,11 @@ import {
   validateRepoName,
 } from './validate.js'
 
-/** 有効なバリアント値の一覧 */
+/** Valid values for --variant. */
 const VALID_VARIANTS = ['base', 'config-batch', 'fastify', 'discord-bot']
 
 /**
- * CLI フラグで渡された値をバリデーションし、不正な場合はプロセスを終了する。
+ * Validates flag values given on the command line and exits the process with code 1 if any is invalid.
  */
 function validateCliFlags(flags: CliFlags): void {
   if (flags.name !== undefined) {
@@ -71,7 +71,7 @@ function validateCliFlags(flags: CliFlags): void {
   process.exit(1)
 }
 
-/** CLI フラグから渡される部分的なオプション */
+/** Partial options given as CLI flags. */
 export interface CliFlags {
   name?: string
   org?: string
@@ -91,14 +91,13 @@ export interface CliFlags {
 }
 
 /**
- * 対話プロンプトで ProjectOptions を収集する。
- * CLI フラグで指定済みの項目はスキップする。
+ * Collects ProjectOptions interactively.
+ * Prompts are skipped for options already given as flags.
  */
 export async function collectOptions(
   outDir: string,
   flags: CliFlags
 ): Promise<ProjectOptions> {
-  // CLI フラグの値を事前検証する（不正な場合はプロセスを終了）
   validateCliFlags(flags)
 
   const resolvedDir = path.resolve(outDir)
@@ -110,7 +109,7 @@ export async function collectOptions(
 
   const answers = await group(
     {
-      // グループ 1: プロジェクト情報
+      // Group 1: project info
       name: () =>
         flags.name === undefined
           ? text({
@@ -177,7 +176,7 @@ export async function collectOptions(
             })
           : Promise.resolve(flags.bugUrl),
 
-      // グループ 2: テンプレート選択
+      // Group 2: template selection
       variant: () =>
         flags.variant === undefined
           ? select({
@@ -224,7 +223,7 @@ export async function collectOptions(
             })
           : Promise.resolve(flags.esm ? 'esm' : 'cjs'),
 
-      // グループ 3: オプション
+      // Group 3: options
       test: () =>
         flags.test === undefined
           ? confirm({
@@ -287,7 +286,7 @@ export async function collectOptions(
 }
 
 /**
- * セットアップ内容のサマリーを note() で表示する。
+ * Shows a summary of the setup with note().
  */
 export function displaySummary(options: ProjectOptions): void {
   const lines = [
@@ -304,8 +303,8 @@ export function displaySummary(options: ProjectOptions): void {
 }
 
 /**
- * 既存ファイルの上書き確認を行う。
- * キャンセル / 拒否時はプロセスを終了する。
+ * Asks whether to overwrite existing files.
+ * Exits the process if the user cancels or declines.
  */
 export async function confirmOverwrite(outDir: string): Promise<void> {
   const confirmed = await confirm({

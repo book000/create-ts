@@ -1,4 +1,4 @@
-# 生成したプロジェクトの Dockerfile がビルドできることを検証する
+# Verifies that the Dockerfile of a generated project builds.
 
 name: Template Docker build
 

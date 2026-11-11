@@ -1,28 +1,28 @@
 /**
- * fastify バリアントのテスト
+ * Tests for the fastify variant.
  *
- * Fastify + @fastify/cors が正しく動作することを確認する。
- * 実際のポートへのバインドは行わず、inject() でリクエストを注入する。
+ * Checks that Fastify and @fastify/cors work.
+ * Requests are injected with inject() instead of binding a real port.
  */
 
 import Fastify from 'fastify'
 import cors from '@fastify/cors'
 
-describe('Fastify アプリケーション', () => {
-  it('Fastify インスタンスを作成できる', () => {
+describe('Fastify application', () => {
+  it('can create a Fastify instance', () => {
     const app = Fastify()
     expect(app).toBeDefined()
     void app.close()
   })
 
-  it('@fastify/cors を登録できる', async () => {
+  it('can register @fastify/cors', async () => {
     const app = Fastify()
     await app.register(cors, { origin: false })
     expect(app).toBeDefined()
     await app.close()
   })
 
-  it('GET / が 200 を返す', async () => {
+  it('GET / returns 200', async () => {
     const app = Fastify()
     await app.register(cors, { origin: false })
 
@@ -37,7 +37,7 @@ describe('Fastify アプリケーション', () => {
     await app.close()
   })
 
-  it('存在しないルートが 404 を返す', async () => {
+  it('returns 404 for an unknown route', async () => {
     const app = Fastify()
     await app.register(cors, { origin: false })
 

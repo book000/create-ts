@@ -1,5 +1,5 @@
 /**
- * エントリポイント
+ * Entry point.
  */
 // eslint-disable-next-line @typescript-eslint/require-await
 async function main(): Promise<void> {

@@ -1,9 +1,8 @@
 /**
- * config-batch バリアントのテスト
+ * Tests for the config-batch variant.
  *
- * @book000/node-utils の ConfigFramework が正しくサブクラス化できること、
- * およびバリデーションロジックが期待通りに動作することを確認する。
- * 外部サービスへの接続は行わない。
+ * Checks that ConfigFramework from @book000/node-utils can be subclassed and that the validation logic works as expected.
+ * Does not connect to external services.
  */
 
 import * as fs from 'node:fs'
@@ -11,13 +10,13 @@ import * as os from 'node:os'
 import * as path from 'node:path'
 import { ConfigFramework } from '@book000/node-utils'
 
-/** テスト用の設定インターフェース */
+/** Configuration interface for tests. */
 interface TestConfig {
   apiKey: string
   timeout: number
 }
 
-/** テスト用の ConfigFramework 実装 */
+/** ConfigFramework implementation for tests. */
 class TestConfiguration extends ConfigFramework<TestConfig> {
   protected validates(): Record<string, (config: TestConfig) => boolean> {
     return {
@@ -45,13 +44,13 @@ describe('ConfigFramework', () => {
     fs.rmSync(tmpDir, { recursive: true })
   })
 
-  it('サブクラスを定義できる', () => {
+  it('can define a subclass', () => {
     fs.writeFileSync(configPath, JSON.stringify({ apiKey: 'test', timeout: 30 }))
     const config = new TestConfiguration(configPath)
     expect(config).toBeDefined()
   })
 
-  it('有効な設定を検証できる', () => {
+  it('accepts a valid configuration', () => {
     fs.writeFileSync(
       configPath,
       JSON.stringify({ apiKey: 'test-key', timeout: 30 })
@@ -62,7 +61,7 @@ describe('ConfigFramework', () => {
     expect(config.getValidateFailures()).toHaveLength(0)
   })
 
-  it('無効な設定を検出できる（負のタイムアウト）', () => {
+  it('detects an invalid configuration (negative timeout)', () => {
     fs.writeFileSync(
       configPath,
       JSON.stringify({ apiKey: 'test-key', timeout: -1 })

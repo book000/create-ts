@@ -1,6 +1,6 @@
 /**
- * プロジェクト名を検証する。
- * npm パッケージ名規則: 小文字英数字・ハイフン・アンダースコア・ドット、214 文字以下。
+ * Validates a project name (npm package name rule): lowercase alphanumerics, hyphens, underscores and dots, starting with an alphanumeric, at most 214 characters.
+ * Returns an error message, or undefined if valid.
  */
 export function validateProjectName(
   value: string | undefined
@@ -12,8 +12,8 @@ export function validateProjectName(
 }
 
 /**
- * GitHub 組織 / ユーザー名を検証する。
- * 英数字・ハイフン・ドットのみ許容。
+ * Validates a GitHub organization / user name: alphanumerics, hyphens and dots, starting with an alphanumeric.
+ * Returns an error message, or undefined if valid.
  */
 export function validateOrgName(value: string | undefined): string | undefined {
   if (!value) return '組織 / ユーザー名は必須です'
@@ -23,8 +23,8 @@ export function validateOrgName(value: string | undefined): string | undefined {
 }
 
 /**
- * リポジトリ名を検証する。
- * 英数字・ハイフン・アンダースコア・ドットのみ許容。先頭はアンダースコア可。
+ * Validates a repository name: alphanumerics, hyphens, underscores and dots; a leading underscore is allowed.
+ * Returns an error message, or undefined if valid.
  */
 export function validateRepoName(
   value: string | undefined
@@ -36,8 +36,8 @@ export function validateRepoName(
 }
 
 /**
- * SPDX ライセンス識別子を検証する。
- * 英数字・ドット・ハイフンのみ許容。
+ * Validates an SPDX license identifier by character set only (alphanumerics, dots and hyphens); it does not check that the identifier exists.
+ * Returns an error message, or undefined if valid.
  */
 export function validateLicense(value: string | undefined): string | undefined {
   if (!value) return 'ライセンス識別子は必須です'
