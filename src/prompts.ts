@@ -317,7 +317,7 @@ export async function confirmOverwrite(
     process.exit(1)
   }
   const confirmed = await confirm({
-    message: 'Overwrite the listed destinations?',
+    message: '一覧のファイルを上書きしますか？',
     initialValue: false,
   })
   if (confirmed && !isCancel(confirmed)) {
