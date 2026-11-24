@@ -14,7 +14,12 @@ import {
   updateDepcheck,
 } from './generate.js'
 import { collectOptions, confirmOverwrite, displaySummary } from './prompts.js'
-import { fetchTemplateConfig, readTemplate } from './template.js'
+import {
+  destinationManifest,
+  fetchTemplateConfig,
+  findCollisions,
+  readTemplate,
+} from './template.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const { version } = JSON.parse(
@@ -144,16 +149,14 @@ async function main(): Promise<void> {
     overwrite: opts.overwrite as boolean | undefined,
   })
 
-  // Ask before overwriting an existing project
-  if (!options.overwrite) {
-    const hasExisting =
-      existsSync(path.join(outDir, 'package.json')) ||
-      existsSync(path.join(outDir, 'tsconfig.json')) ||
-      existsSync(path.join(outDir, 'src'))
-
-    if (hasExisting) {
-      await confirmOverwrite(outDir)
-    }
+  const templateConfig = fetchTemplateConfig(options.variant)
+  const { commonFiles, filesToCopy, destinations } = destinationManifest(
+    options,
+    templateConfig
+  )
+  const collisions = findCollisions(outDir, destinations)
+  if (collisions.length > 0 && !options.overwrite) {
+    await confirmOverwrite(outDir, collisions)
   }
 
   displaySummary(options)
@@ -163,34 +166,12 @@ async function main(): Promise<void> {
   }
 
   try {
-    s.start('テンプレート設定を読み込んでいます...')
-    const templateConfig = fetchTemplateConfig(options.variant)
-    s.stop('テンプレート設定を読み込みました')
-
-    const commonFiles = [
-      'tsconfig.json',
-      '.prettierrc.yml',
-      'eslint.config.mjs',
-      'renovate.json',
-      '.depcheckrc.json',
-      '.fixpackrc',
-      'pnpm-workspace.yaml',
-      '.devcontainer/devcontainer.json',
-      ...(options.docker ? ['Dockerfile', 'entrypoint.sh'] : []),
-    ]
-
     s.start('共通ファイルをコピーしています...')
     for (const file of commonFiles) {
       const content = readTemplate(`nodejs/common/${file}`)
       writeFile(path.join(outDir, file), content)
     }
     s.stop(`共通ファイルをコピーしました (${commonFiles.length} ファイル)`)
-
-    // copy the variant's src files (and test files with --test)
-    const filesToCopy = [
-      ...templateConfig.src,
-      ...(options.test && templateConfig.testSrc ? templateConfig.testSrc : []),
-    ]
 
     s.start('src ファイルをコピーしています...')
     for (const srcFile of filesToCopy) {

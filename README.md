@@ -45,7 +45,7 @@ pnpm create @book000/ts my-app \
 | `--docker` / `--no-docker` | Add / do not add `Dockerfile`, `entrypoint.sh` and the Docker workflow | Asked (no) |
 | `--ignore-data` / `--no-ignore-data` | Add / do not add `data/` to `.gitignore` | Asked (no) |
 | `--add-reviewer` / `--no-add-reviewer` | Add / do not add the add-reviewer workflow | Asked (no) |
-| `--overwrite` | Overwrite existing files without asking. Without it, you are asked when `package.json`, `tsconfig.json` or `src` already exists | Off |
+| `--overwrite` | Overwrite existing files without asking. Without it, existing destination files are listed and require confirmation; non-interactive runs fail on collisions | Off |
 
 Invalid values for `--name`, `--org`, `--repo`, `--license` or `--variant` make the CLI exit with an error. The prompts and most CLI messages are in Japanese.
 

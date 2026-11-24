@@ -306,9 +306,19 @@ export function displaySummary(options: ProjectOptions): void {
  * Asks whether to overwrite existing files.
  * Exits the process if the user cancels or declines.
  */
-export async function confirmOverwrite(outDir: string): Promise<void> {
+export async function confirmOverwrite(
+  outDir: string,
+  collisions: string[]
+): Promise<void> {
+  note(collisions.join('\n'), `Existing destinations in ${outDir}`)
+  if (!process.stdin.isTTY) {
+    log.error('Existing destinations require confirmation or --overwrite.')
+    // eslint-disable-next-line unicorn/no-process-exit
+    process.exit(1)
+  }
   const confirmed = await confirm({
-    message: `${outDir} に既存のファイルがあります。上書きしますか？`,
+    message: 'Overwrite the listed destinations?',
+    initialValue: false,
   })
   if (confirmed && !isCancel(confirmed)) {
     return
