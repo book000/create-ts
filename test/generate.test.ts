@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   generateGitignore,
+  isSupportedNodeVersion,
   patchDockerWorkflow,
   patchPackageJson,
   patchTsConfig,
@@ -63,8 +64,13 @@ describe('patchPackageJson', () => {
     test: false,
   }
 
+  it('sets the supported Node.js range for generated projects', () => {
+    const result = patchPackageJson(BASE_PACKAGE_JSON, baseOptions)
+    expect(result.engines).toEqual({ node: '>=26.13.1 <27' })
+  })
+
   it('lowercases the org in name even if it is uppercase', () => {
-    const result = patchPackageJson(BASE_PACKAGE_JSON, { ...baseOptions, org: 'Book000' }, 20)
+    const result = patchPackageJson(BASE_PACKAGE_JSON, { ...baseOptions, org: 'Book000' })
     expect(result.name).toBe('@book000/my-app')
   })
 
@@ -72,7 +78,6 @@ describe('patchPackageJson', () => {
     const result = patchPackageJson(
       BASE_PACKAGE_JSON,
       { ...baseOptions, esm: true, test: false },
-      20
     )
     expect(result.type).toBe('module')
   })
@@ -81,7 +86,6 @@ describe('patchPackageJson', () => {
     const result = patchPackageJson(
       BASE_PACKAGE_JSON,
       { ...baseOptions, esm: true, test: true },
-      20
     )
     expect((result.jest as Record<string, unknown>).preset).toBe(
       'ts-jest/presets/default-esm'
@@ -92,7 +96,7 @@ describe('patchPackageJson', () => {
   })
 
   it('--no-test: scripts.test and the jest field are removed', () => {
-    const result = patchPackageJson(BASE_PACKAGE_JSON, { ...baseOptions, test: false }, 20)
+    const result = patchPackageJson(BASE_PACKAGE_JSON, { ...baseOptions, test: false })
     expect((result.scripts as Record<string, string>).test).toBeUndefined()
     expect(result.jest).toBeUndefined()
   })
@@ -101,13 +105,12 @@ describe('patchPackageJson', () => {
     const result = patchPackageJson(
       BASE_PACKAGE_JSON,
       { ...baseOptions, esm: true, test: false },
-      20
     )
     expect(result.jest).toBeUndefined()
   })
 
   it('empty homepage: the homepage field is not added', () => {
-    const result = patchPackageJson(BASE_PACKAGE_JSON, { ...baseOptions, homepage: '' }, 20)
+    const result = patchPackageJson(BASE_PACKAGE_JSON, { ...baseOptions, homepage: '' })
     expect(result.homepage).toBeUndefined()
   })
 
@@ -115,7 +118,6 @@ describe('patchPackageJson', () => {
     const result = patchPackageJson(
       BASE_PACKAGE_JSON,
       { ...baseOptions, homepage: 'https://example.com' },
-      20
     )
     expect(result.homepage).toBe('https://example.com')
   })
@@ -239,5 +241,18 @@ describe('updateDepcheck', () => {
     const ignores = (result as typeof BASE_DEPCHECK).ignores
     const count = ignores.filter((i) => i === 'typescript-json-schema').length
     expect(count).toBe(1)
+  })
+})
+
+describe('isSupportedNodeVersion', () => {
+  it.each([
+    ['26.13.0', false],
+    ['26.13.1', true],
+    ['26.14.0', true],
+    ['25.99.99', false],
+    ['27.0.0', false],
+    ['26.14.0-rc.1', false],
+  ])('checks %s', (version, expected) => {
+    expect(isSupportedNodeVersion(version)).toBe(expected)
   })
 })

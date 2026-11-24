@@ -4,7 +4,7 @@ A CLI that scaffolds book000-style TypeScript / Node.js projects. It copies the 
 
 ## Requirements
 
-- Node.js v20 or later (the CLI exits with an error otherwise)
+- Node.js >=26.13.1 <27 (the CLI exits with an error otherwise)
 - pnpm (generated projects reject other package managers with `only-allow`)
 - Network access: dependencies are installed with `pnpm install`, the `LICENSE` text is fetched from the GitHub licenses API (skipped with a warning on failure), and `fixpack` / `fixdevcontainer` are run through `npx` (skipped on failure)
 
@@ -64,7 +64,7 @@ Every project gets `tsconfig.json`, `.prettierrc.yml`, `eslint.config.mjs`, `ren
 
 Inside the generated project, `pnpm run lint`, `pnpm run test` (with `--test`), `pnpm start` and `pnpm run dev` are available.
 
-The `fastify` test script enables Node.js VM modules so Jest can load ESM dependencies used by request injection. It requires Node.js v24.9 or later; the template pins a compatible version in `engines.node`.
+Generated projects require Node.js >=26.13.1 <27 and use Node.js 26 for both the devcontainer and Docker image. The `fastify` test script enables Node.js VM modules so Jest can load ESM dependencies used by request injection. Its Node.js v24.9 minimum is covered by the generated project requirement.
 
 ## Development
 

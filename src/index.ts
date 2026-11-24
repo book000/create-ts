@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url'
 import { execa } from 'execa'
 import {
   generateGitignore,
+  isSupportedNodeVersion,
   patchDockerWorkflow,
   patchPackageJson,
   patchTsConfig,
@@ -30,28 +31,9 @@ function writeFile(filePath: string, content: string): void {
   writeFileSync(filePath, content, 'utf8')
 }
 
-/**
- * Checks that node and pnpm are available and that Node.js is v20 or later.
- * Exits the process on failure; otherwise returns the Node.js major version.
- */
-async function checkPrerequisites(): Promise<number> {
-  let nodeMajor: number
-
-  try {
-    const { stdout: nodeVer } = await execa('node', ['--version'])
-    nodeMajor = Number.parseInt(
-      nodeVer.trim().replace('v', '').split('.', 1)[0],
-      10
-    )
-  } catch {
-    log.error('Error: node not found. Please install Node.js v20 or later.')
-    process.exit(1)
-  }
-
-  if (nodeMajor < 20) {
-    log.error(
-      `Error: Node.js v${nodeMajor} is too old. Please install Node.js v20 or later.`
-    )
+async function checkPrerequisites(): Promise<void> {
+  if (!isSupportedNodeVersion(process.versions.node)) {
+    log.error('Error: Node.js >=26.13.1 <27 is required.')
     process.exit(1)
   }
 
@@ -63,8 +45,6 @@ async function checkPrerequisites(): Promise<number> {
     )
     process.exit(1)
   }
-
-  return nodeMajor
 }
 
 async function main(): Promise<void> {
@@ -123,7 +103,7 @@ async function main(): Promise<void> {
 
   const s = spinner()
   s.start('前提条件を確認しています...')
-  const nodeMajor = await checkPrerequisites()
+  await checkPrerequisites()
   s.stop('前提条件を確認しました')
 
   const options = await collectOptions(outDir, {
@@ -219,8 +199,7 @@ async function main(): Promise<void> {
     )
     writeFileSync(path.join(outDir, '.gitignore'), gitignoreContent, 'utf8')
 
-    const { stdout: nodeVersion } = await execa('node', ['--version'])
-    const nodeVersionNumber = nodeVersion.trim().replace('v', '')
+    const nodeVersionNumber = process.versions.node
     writeFileSync(
       path.join(outDir, '.node-version'),
       `${nodeVersionNumber}\n`,
@@ -293,7 +272,7 @@ async function main(): Promise<void> {
     )
     const variantPkgJson = JSON.parse(variantPkgText) as Record<string, unknown>
 
-    const patchedPkgJson = patchPackageJson(variantPkgJson, options, nodeMajor)
+    const patchedPkgJson = patchPackageJson(variantPkgJson, options)
 
     const depcheckIgnore = templateConfig.depcheckIgnore ?? []
     if (depcheckIgnore.length > 0 || options.test) {

@@ -1,9 +1,15 @@
 import type { ProjectOptions } from './types.js'
 import { readTemplate } from './template.js'
 
+export function isSupportedNodeVersion(version: string): boolean {
+  if (!/^\d+\.\d+\.\d+$/.test(version)) return false
+  const [major, minor, patch] = version.split('.').map(Number)
+  return major === 26 && (minor > 13 || (minor === 13 && patch >= 1))
+}
+
 /**
  * Applies project-specific values to a variant's package.json and returns a new object.
- * Sets name (`@<org lowercased>/<name>`), description, license, author, engines.node (`>=<nodeMajor>`), repository and bugs URLs, and homepage if non-empty.
+ * Sets name (`@<org lowercased>/<name>`), description, license, author, engines.node (`>=26.13.1 <27`), repository and bugs URLs, and homepage if non-empty.
  * With `esm`, sets `type: "module"` (plus the ts-jest ESM config when `test` is also set).
  * Without `test`, removes the `test` script and the `jest` field.
  */
@@ -21,8 +27,7 @@ export function patchPackageJson(
     | 'bugUrl'
     | 'esm'
     | 'test'
-  >,
-  nodeMajor: number
+  >
 ): Record<string, unknown> {
   const {
     name,
@@ -42,7 +47,7 @@ export function patchPackageJson(
   result.description = description
   result.license = license
   result.author = author
-  ;(result.engines as Record<string, string>).node = `>=${nodeMajor}`
+  ;(result.engines as Record<string, string>).node = '>=26.13.1 <27'
   ;(result.repository as Record<string, string>).url =
     `git+https://github.com/${org}/${repo}.git`
   ;(result.bugs as Record<string, string>).url = bugUrl
