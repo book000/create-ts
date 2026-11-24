@@ -24,9 +24,6 @@ export interface ProjectOptions {
 /** Schema of a variant's template.json. */
 export interface TemplateConfig {
   configSchema: boolean
-  dependencies?: string[]
-  devDependencies?: string[]
-  scripts?: Record<string, string>
   depcheckIgnore?: string[]
   /** Files always copied (paths relative to the variant directory). */
   src: string[]
