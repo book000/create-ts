@@ -1,4 +1,4 @@
-# Verifies that the Dockerfile of a generated project builds.
+# Verifies generated projects and their Dockerfile.
 
 name: Template Docker build
 
@@ -35,6 +35,73 @@ permissions:
   contents: read
 
 jobs:
+  generated-project:
+    name: ${{ matrix.variant }} (${{ matrix.module }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [base, config-batch, fastify, discord-bot]
+        module: [cjs, esm]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+        with:
+          run_install: false
+
+      - name: Setup node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Check overwrite protection
+        if: matrix.variant == 'base' && matrix.module == 'cjs'
+        run: |
+          mkdir -p "$RUNNER_TEMP/template-probe/src"
+          printf 'preserve me\n' > "$RUNNER_TEMP/template-probe/src/main.ts"
+          if node dist/index.mjs "$RUNNER_TEMP/template-probe" \
+            --name template-probe --org book000 --repo template-probe \
+            --description probe --author book000 --license MIT --homepage "" \
+            --bug-url https://github.com/book000/template-probe/issues \
+            --variant base --no-esm --test --no-docker \
+            --no-ignore-data --no-add-reviewer < /dev/null > "$RUNNER_TEMP/overwrite.log" 2>&1; then
+            echo 'Expected overwrite protection to reject the existing file' >&2
+            exit 1
+          fi
+          grep -F 'Existing destinations require confirmation or --overwrite.' "$RUNNER_TEMP/overwrite.log"
+          test "$(cat "$RUNNER_TEMP/template-probe/src/main.ts")" = 'preserve me'
+          test ! -e "$RUNNER_TEMP/template-probe/package.json"
+
+      - name: Generate project
+        env:
+          VARIANT: ${{ matrix.variant }}
+          MODULE: ${{ matrix.module }}
+        run: |
+          module_flag=--no-esm
+          if [ "$MODULE" = esm ]; then module_flag=--esm; fi
+          node dist/index.mjs "$RUNNER_TEMP/template-probe" \
+            --name template-probe --org book000 --repo template-probe \
+            --description probe --author book000 --license MIT --homepage "" \
+            --bug-url https://github.com/book000/template-probe/issues \
+            --variant "$VARIANT" "$module_flag" --test --no-docker \
+            --no-ignore-data --no-add-reviewer --overwrite
+
+      - name: Lint generated project
+        run: pnpm --dir "$RUNNER_TEMP/template-probe" run lint
+
+      - name: Test generated project
+        run: pnpm --dir "$RUNNER_TEMP/template-probe" run test
+
   docker-build:
     name: Docker build
     runs-on: ubuntu-latest
@@ -70,3 +137,14 @@ jobs:
 
       - name: Build generated Docker image
         run: docker build "$RUNNER_TEMP/docker-probe"
+
+      - name: Check test dependencies were removed
+        run: |
+          node -e '
+            const pkg = require(process.argv[1]);
+            for (const name of ["jest", "@types/jest", "ts-jest"]) {
+              if (pkg.devDependencies?.[name] || pkg.dependencies?.[name]) process.exit(1);
+            }
+            if (pkg.scripts?.test || pkg.jest) process.exit(1);
+          ' "$RUNNER_TEMP/docker-probe/package.json"
+          test ! -e "$RUNNER_TEMP/docker-probe/tsconfig.test.json"
